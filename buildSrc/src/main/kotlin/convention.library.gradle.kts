@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import util.nativeTargetGroup
 import util.KotlinTargetDetails
+import util.nativeTargetGroup
 
 plugins {
   kotlin("multiplatform")
@@ -15,18 +15,6 @@ kotlin {
     binaries.library()
     useCommonJs()
     nodejs()
-//          browser {
-//            commonWebpackConfig {
-//              cssSupport.enabled = true
-//            }
-//            testTask {
-//              useKarma {
-//                useFirefox()
-//                useChrome()
-//                useSafari()
-//              }
-//            }
-//          }
   }
 
   nativeTargetGroup(

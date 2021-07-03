@@ -3,9 +3,15 @@ plugins {
   id("com.gradle.enterprise") version "3.6.3"
 }
 
-rootProject.name = "template-kmp-library"
+rootProject.name = "monko"
 include(":test")
-include(
-  ":lib:template-kmp-library-core",
-  ":lib:template-kmp-library-dsl"
+
+val libModules = arrayOf(
+  ":lib:core"
 )
+libModules.forEach {
+  include(it)
+  project(it).apply {
+    name = "${rootProject.name}-$name"
+  }
+}
