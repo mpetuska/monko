@@ -5,3 +5,5 @@ build/
 local.properties
 *.hprof
 lint.xml
+externals/
+/mongo-c-driver/

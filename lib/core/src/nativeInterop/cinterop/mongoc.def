@@ -1,0 +1,26 @@
+package = mongoc
+headers = mongoc.h
+excludeDependentModules = true
+
+# Linux
+compilerOpts.linux = -I/usr/local/include/libmongoc-1.0 -I/usr/local/include/libbson-1.0
+linkerOpts.linux = -L/usr/local/lib -lmongoc-1.0 -lbson-1.0
+
+#staticLibraries.linux = libmongoc-static-1.0.a libbson-static-1.0.a
+#libraryPaths.linux = /usr/local/lib /usr/lib/x86_64-linux-gnu
+#compilerOpts.linux = -DMONGOC_STATIC -DBSON_STATIC -I/usr/local/include/libmongoc-1.0 -I/usr/local/include/libbson-1.0
+#linkerOpts.linux = -L/usr/local/lib -L/usr/lib/x86_64-linux-gnu -lmongoc-static-1.0 -lsasl2 -lssl -lcrypto -lrt -lresolv -pthread -lz -lsnappy -lzstd -lmongocrypt -lbson-static-1.0 /usr/lib/x86_64-linux-gnu/librt.so -pthread
+
+
+# OSX
+#compilerOpts.osx = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0
+#linkerOpts.osx = -lmongoc-1.0 -lbson-1.0
+#staticLibraries.osx = libmongoc-static-1.0.a libbson-static-1.0.a
+#libraryPaths.osx = /usr/lib/x86_64-linux-gnu
+
+# MINGW
+#compilerOpts.mingw = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0
+#linkerOpts.mingw = -lmongoc-1.0 -lbson-1.0
+#staticLibraries.mingw = libmongoc-static-1.0.a libbson-static-1.0.a
+#libraryPaths.mingw = /usr/lib/x86_64-linux-gnu
+

@@ -35,10 +35,10 @@ at `.github/workflows/release.yml#L80`
   from kotlin snapshot repositories. If you'd like to use a stable kotlin version instead, remove linuxMips32 from linux
   native target group in `/buildSrc/src/main/kotlin/convention.library.gradle.kts`.
 
-
 # Local Setup
 ## Linux/Debian
 ```bash
-sudo apt-get install libbson-dev libmongoc-dev libbson-1.0-0 libmongoc-1.0-0 cmake libssl-dev libsasl2-dev -y;
+sudo apt install libbson-dev libmongoc-dev cmake libssl-dev libsasl2-dev libncurses5-dev libncursesw5-dev -y;
+sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5;
 sudo ln -s /usr/lib/libncurses.so.5 /usr/lib/libtinfo.so.5;
 ```

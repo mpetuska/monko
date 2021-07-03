@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import util.KotlinTargetDetails
 import util.nativeTargetGroup
 
 plugins {
@@ -12,25 +11,9 @@ kotlin {
   explicitApi()
   jvm()
   js {
-    binaries.library()
     useCommonJs()
     nodejs()
   }
-
-  nativeTargetGroup(
-    "androidNdk",
-    androidNativeArm32(),
-    androidNativeArm64(),
-  )
-
-  nativeTargetGroup(
-    "linux",
-    linuxX64(),
-    linuxMips32(),
-    linuxMipsel32(),
-    linuxArm64(),
-    linuxArm32Hfp(),
-  )
 
   nativeTargetGroup(
     "ios",
@@ -53,34 +36,23 @@ kotlin {
     tvosX64(),
   )
 
+  linuxX64()
   macosX64()
-
-  nativeTargetGroup(
-    "mingw",
-    mingwX86(),
-    mingwX64(),
-  )
+  mingwX64()
 
   sourceSets {
+    commonMain {
+      dependencies {
+        api("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
+
+      }
+    }
     commonTest {
       dependencies {
         implementation(project(":test"))
       }
     }
   }
-
-  val targetsWithCoroutines = KotlinTargetDetails.values()
-    .filter(KotlinTargetDetails::hasCoroutines)
-    .map(KotlinTargetDetails::presetName)
-
-  targets.filter { it.preset?.name in targetsWithCoroutines }
-    .forEach {
-      it.compilations["main"].defaultSourceSet {
-        dependencies {
-          api("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
-        }
-      }
-    }
 }
 
 tasks {

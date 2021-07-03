@@ -1,13 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import util.KotlinTargetDetails
 import util.NativeHost
 
@@ -48,6 +40,14 @@ tasks {
         "Created-By" to "${GradleVersion.current()}",
         "Created-From" to Git.headCommitHash
       )
+    }
+  }
+  named("clean") {
+    doLast {
+      val groupRepo = file("${System.getProperty("user.home")}/.m2/repository/${project.group.toString().replace(".", "/")}")
+      publishing.publications.filterIsInstance<MavenPublication>().forEach {
+        groupRepo.resolve(it.artifactId).deleteRecursively()
+      }
     }
   }
 }

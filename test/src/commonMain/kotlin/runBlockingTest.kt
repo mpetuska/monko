@@ -1,5 +1,5 @@
 package local.test
 
-expect interface CoroutineScope
+import kotlinx.coroutines.CoroutineScope
 
 expect fun runBlockingTest(test: suspend CoroutineScope.() -> Unit)
