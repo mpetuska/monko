@@ -16,24 +16,32 @@ public actual suspend fun MonkoClient(
   connectionStringJS: String?,
   connectionStringJVM: String?,
   connectionStringNative: String?
-): MonkoClient = MonkoClientImpl(connectionStringNative ?: connectionString)
+): MonkoClient = MonkoClientC(connectionStringNative ?: connectionString)
 
-internal class MonkoClientImpl(connectionString: String) : MonkoClient {
+public actual suspend fun MonkoClient.Companion.cleanup() {
+  mongoc_cleanup()
+}
+
+internal class MonkoClientC(connectionString: String) : MonkoClient {
+  companion object {
+    init {
+      mongoc_init()
+    }
+  }
   override val source: MongoClient = this
   private val uri: CPointer<mongoc_uri_t>
-  private val client: CPointer<mongoc_client_t>
+  internal val c: CPointer<mongoc_client_t>
 
   init {
-    mongoc_init()
+    Companion
     uri = mongoc_uri_new(connectionString)!!
-    client = mongoc_client_new_from_uri(uri)!!
+    c = mongoc_client_new_from_uri(uri)!!
   }
 
-  override fun database(name: String): MonkoDatabase = MonkoDatabaseImpl(client, name)
+  override suspend fun database(name: String): MonkoDatabase = MonkoDatabaseC(this, name)
 
   override fun close() {
     mongoc_uri_destroy(uri)
-    mongoc_client_destroy(client)
-    mongoc_cleanup()
+    mongoc_client_destroy(c)
   }
 }

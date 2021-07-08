@@ -1,3 +1,5 @@
 package dev.petuska.monko.core.ext
 
-public actual interface MongoCollection<T>
+@JsModule("mongodb")
+@JsName("Collection")
+public actual external interface MongoCollection<T>

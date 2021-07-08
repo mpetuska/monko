@@ -6,8 +6,11 @@ import kotlin.test.Test
 class MonkoCollectionTest {
   @Test
   fun isAbleToInitialise() = runBlockingTest {
-    MonkoClient("mongodb://localhost:27017")
-      .database("test-db")
-      .collection("test-collection")
+    val client = MonkoClient("mongodb://localhost:27017")
+    val db = client.database("test-db")
+    val col = db.collection("test-collection")
+    col.close()
+    db.close()
+    client.close()
   }
 }

@@ -6,6 +6,6 @@ import kotlin.test.Test
 class MonkoClientTest {
   @Test
   fun isAbleToInitialise() = runBlockingTest {
-    MonkoClient("mongodb://localhost:27017")
+    MonkoClient("mongodb://localhost:27017").close()
   }
 }

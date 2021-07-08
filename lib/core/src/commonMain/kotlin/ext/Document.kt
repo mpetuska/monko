@@ -1,3 +1,3 @@
 package dev.petuska.monko.core.ext
 
-public expect open class Document
+public expect open class Document : Bson

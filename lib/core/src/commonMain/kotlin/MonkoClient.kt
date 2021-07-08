@@ -5,8 +5,12 @@ import dev.petuska.monko.core.util.Closeable
 import dev.petuska.monko.core.util.Proxy
 
 public interface MonkoClient : Proxy<MongoClient>, MongoClient, Closeable {
-  public fun database(name: String): MonkoDatabase
+  public suspend fun database(name: String): MonkoDatabase
+
+  public companion object
 }
+
+public expect suspend fun MonkoClient.Companion.cleanup()
 
 public expect suspend fun MonkoClient(
   connectionString: String,
