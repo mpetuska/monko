@@ -3,7 +3,6 @@ package dev.petuska.monko.core
 import dev.petuska.monko.core.bson.MonkoBson
 import dev.petuska.monko.core.bson.MonkoBsonC
 import dev.petuska.monko.core.ext.Document
-import dev.petuska.monko.core.ext.MongoDatabase
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
@@ -22,7 +21,7 @@ internal class MonkoDatabaseC(
   override val client: MonkoClientC,
   override val dbName: String
 ) : MonkoDatabase {
-  override val source: MongoDatabase = this
+  override val source: MonkoDatabase = this
   internal val c: CPointer<mongoc_database_t> = mongoc_client_get_database(client.c, dbName)!!
 
   override suspend fun collection(name: String): MonkoCollection<Document> = MonkoCollectionC(this, name)

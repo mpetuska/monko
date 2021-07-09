@@ -1,8 +1,12 @@
 import groovy.lang.Closure
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.internal.os.OperatingSystem
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
+
+
+internal val currentOS = OperatingSystem.current()
 
 typealias Lambda<R, V> = R.() -> V
 

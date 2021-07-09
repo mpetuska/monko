@@ -1,6 +1,5 @@
 package dev.petuska.monko.core
 
-import dev.petuska.monko.core.ext.MongoClient
 import kotlinx.cinterop.CPointer
 import mongoc.mongoc_cleanup
 import mongoc.mongoc_client_destroy
@@ -28,7 +27,7 @@ internal class MonkoClientC(connectionString: String) : MonkoClient {
       mongoc_init()
     }
   }
-  override val source: MongoClient = this
+  override val source: MonkoClient = this
   private val uri: CPointer<mongoc_uri_t>
   internal val c: CPointer<mongoc_client_t>
 

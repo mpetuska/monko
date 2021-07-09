@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import util.nativeTargetGroup
 
@@ -16,42 +17,35 @@ kotlin {
   }
 
   nativeTargetGroup(
-    "ios",
-    iosArm32(),
-    iosArm64(),
-    iosX64(),
+    "desktop",
+    macosX64(),
+    linuxX64(),
+    mingwX64(),
   )
-
-  nativeTargetGroup(
-    "watchos",
-    watchosArm32(),
-    watchosArm64(),
-    watchosX86(),
-    watchosX64(),
-  )
-
-  nativeTargetGroup(
-    "tvos",
-    tvosArm64(),
-    tvosX64(),
-  )
-
-  linuxX64()
-  macosX64()
-  mingwX64()
 
   sourceSets {
-    commonMain {
+    val commonMain by getting {
       dependencies {
         api("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
-
       }
     }
-    commonTest {
+    val commonTest by getting {
       dependencies {
         implementation(project(":test"))
       }
     }
+    val nativeMain by creating {
+      dependsOn(commonMain)
+    }
+    val nativeTest by creating {
+      dependsOn(commonTest)
+    }
+    targets.filterIsInstance<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>()
+      .map { it.compilations["main"].defaultSourceSet to it.compilations["test"].defaultSourceSet }
+      .forEach { (main, test) ->
+        main.dependsOn(nativeMain)
+        test.dependsOn(nativeTest)
+      }
   }
 }
 
@@ -59,6 +53,13 @@ tasks {
   withType<KotlinCompile> {
     kotlinOptions {
       jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
+    }
+  }
+  withType<AbstractKotlinNativeCompile<*, *>> {
+    onlyIf {
+      (target.startsWith("mingw") && currentOS.isWindows) ||
+          (target.startsWith("linux") && currentOS.isLinux) ||
+          (target.contains("os", true) && currentOS.isMacOsX)
     }
   }
 }

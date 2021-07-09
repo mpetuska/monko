@@ -6,4 +6,4 @@ local.properties
 *.hprof
 lint.xml
 externals/
-/mongo-c-driver/
+scripts/mongo-c-driver-*/**

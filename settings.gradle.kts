@@ -5,13 +5,6 @@ plugins {
 
 rootProject.name = "monko"
 include(":test")
-
-val libModules = arrayOf(
-  ":lib:core"
+include(
+  ":lib:monko-core",
 )
-libModules.forEach {
-  include(it)
-  project(it).apply {
-    name = "${rootProject.name}-$name"
-  }
-}

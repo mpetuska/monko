@@ -1,6 +1,5 @@
 package dev.petuska.monko.core.bson
 
-import dev.petuska.monko.core.ext.Bson
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.reinterpret
@@ -8,14 +7,18 @@ import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.utf8
 import mongoc.bson_as_relaxed_extended_json
 import mongoc.bson_destroy
+import mongoc.bson_free
 import mongoc.bson_new_from_json
 import mongoc.bson_t
 
 internal class MonkoBsonC(override val bson: CPointer<bson_t>) : MonkoBson {
-  override val source: Bson = this
+  override val source: MonkoBson = this
   override fun toJson(): String {
-    return bson_as_relaxed_extended_json(bson, null)?.toKStringFromUtf8()
+    val cJson = bson_as_relaxed_extended_json(bson, null)
       ?: throw IllegalStateException("Unable to create JSON from given BSON - $this")
+    val kJson = cJson.toKStringFromUtf8()
+    bson_free(cJson)
+    return kJson
   }
 
   override fun close() {

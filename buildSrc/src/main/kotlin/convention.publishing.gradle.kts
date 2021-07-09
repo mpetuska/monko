@@ -10,7 +10,6 @@ plugins {
   signing
 }
 
-internal val currentOS = OperatingSystem.current()
 internal val mainOS = OperatingSystem.forName(project.properties["project.mainOS"] as String)
 internal val isMainOS = currentOS == mainOS
 
