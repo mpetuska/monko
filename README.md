@@ -47,3 +47,12 @@ at `.github/workflows/release.yml#L80`
 
 * Start mongodb: `docker run --rm -p 27017:27017 mongo`
 * Run via gradle: `./gradlew allTests`
+
+## Docker (On KVM)
+First you need to build builder images for each platform (only needs to be done once).
+* Ubuntu: `docker build -t monko-build:ubuntu --build-arg "user=$USER" -f docker/ubuntu.dockerfile .`
+* OSX: `docker build -t monko-build:osx --build-arg "user=$USER" -f docker/osx.dockerfile .`
+
+Then you can run gradle commands of the project on a chosen image as:
+* Ubuntu: `docker run --network host --rm -v "$PWD:/repository" monko-build:ubuntu <gradle commands>`
+* OSX: `docker run --network host --rm -v "$PWD:/repository" monko-build:osx <gradle commands>`

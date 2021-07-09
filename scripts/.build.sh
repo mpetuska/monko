@@ -12,7 +12,7 @@ if [[ ! -f "mongo-c-driver-${VERSION}" ]]; then
 fi
 
 cd "mongo-c-driver-${VERSION}" || exit 1
-mkdir cmake-build
+mkdir -p cmake-build
 cd cmake-build || exit 1
 cmake .. \
   "-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF" \

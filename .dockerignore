@@ -1,0 +1,10 @@
+/docker/
+/sandbox/
+/scripts/mongo-c-driver*
+/.git/
+/LICENSE
+.gradle/
+.gitignore
+.dockerignore
+.gitattributes
+build/
