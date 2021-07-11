@@ -13,8 +13,10 @@ public actual suspend fun MonkoClient(
   return MongoClients.create(connectionStringJVM ?: connectionString).let(::MonkoClientJvm)
 }
 
-internal class MonkoClientJvm(override val source: MongoClient) : MonkoClient, MongoClient by source {
-  override suspend fun database(name: String): MonkoDatabase = MonkoDatabaseJvm(this, getDatabase(name))
+internal class MonkoClientJvm(override val source: MongoClient) : MonkoClient {
+  override fun close() = source.close()
+
+  override suspend fun database(name: String): MonkoDatabase = MonkoDatabaseJvm(this, source.getDatabase(name))
 }
 
 public actual suspend fun MonkoClient.Companion.cleanup(): Unit = noop

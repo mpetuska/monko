@@ -15,7 +15,7 @@ WORKDIR /install-gradle
 COPY . .
 RUN sudo chown -R $user "$PWD"
 USER $user
-RUN ./gradlew assemble
+RUN ./gradlew compile
 
 WORKDIR /repository
 USER root

@@ -1,39 +1,19 @@
+[![Slack chat](https://img.shields.io/badge/chat-kotlinlang-purple?logo=slack&style=flat-square)](https://kotlinlang.slack.com/team/UL1A5BA2X)
 [![Dokka docs](https://img.shields.io/badge/docs-dokka-orange?style=flat-square)](http://mpetuska.github.io/monko)
 [![Version maven-central](https://img.shields.io/maven-central/v/dev.petuska/monko?logo=apache-maven&style=flat-square)](https://mvnrepository.com/artifact/dev.petuska/monko/latest)
 
 # MONKO
 
-Kotlin multiplatform bindongs for mongodb driver.
+Kotlin multiplatform bindings for mongodb driver.
 
-Has a baseline setup for a multiplatform library supporting all
-kotlin [targets](https://kotlinlang.org/docs/mpp-supported-platforms.html)
-except android (any help in getting that setup welcome) & deprecated wasm32.
+Has a baseline setup for a multiplatform library supporting all kotlin
+server-side [targets](https://kotlinlang.org/docs/mpp-supported-platforms.html)
 
-### Kotlin Targets
-
-The template comes packed with all kotlin targets preconfigured, however if you want to remove some of them or tweak the
-config, you only need to make changes as needed in `/buildSrc/src/main/kotlin/convention.library.gradle.kts`. Removing
-targets from this file will not break any publications as they're configured on top of pre-registered targets.
-
-### GitHub Actions
-
-The template also comes with GH actions to check builds on PRs and publish artefacts when creating a GH release. By
-default, it'll publish to GH packages and Maven Central. However to fully unlock Maven Central publishing, you'll need
-to add these secrets to your GH repository. If you want to quickly disable Maven Central publishing, you can toggle it
-at `.github/workflows/release.yml#L80`
-
-* `SIGNING_KEY` - GPG signing key
-* `SIGNING_KEY_ID` - GPG signing key ID
-* `SIGNING_PASSWORD` - GPG signing key password (if set)
-* `SONATYPE_PASSWORD` - Sonatype PAT username
-* `SONATYPE_USERNAME` - Sonatype PAT password
-
-## Known Issues
-
-* [KT-46957](https://youtrack.jetbrains.com/issue/KT-46957) - Commonizer breaks for linuxMips32. This is fixed and
-  scheduled to be released in 1.5.30-M1. However, to make the setup work now, the template is currently using dev build
-  from kotlin snapshot repositories. If you'd like to use a stable kotlin version instead, remove linuxMips32 from linux
-  native target group in `/buildSrc/src/main/kotlin/convention.library.gradle.kts`.
+* JVM
+* JS (NodeJs)
+* LinuxX64
+* MingwX64
+* MacOSX64
 
 # Local Setup
 
@@ -46,13 +26,18 @@ at `.github/workflows/release.yml#L80`
 ## Running tests
 
 * Start mongodb: `docker run --rm -p 27017:27017 mongo`
-* Run via gradle: `./gradlew allTests`
+  * Alternatively you can use `docker-compose` which also gives you access to `mongo-express` web interface to interact
+    with the database directly at `http://localhost:8081`. To run it use `docker-compose up` command.
+* Run via gradle: `./gradlew allTests` or alias `./gradlew test`
 
 ## Docker (On KVM)
+
 First you need to build builder images for each platform (only needs to be done once).
-* Ubuntu: `docker build -t monko-build:ubuntu --build-arg "user=$USER" -f docker/ubuntu.dockerfile .`
+
+* Debian/Ubuntu: `docker build -t monko-build:ubuntu --build-arg "user=$USER" -f docker/ubuntu.dockerfile .`
 * OSX: `docker build -t monko-build:osx --build-arg "user=$USER" -f docker/osx.dockerfile .`
 
 Then you can run gradle commands of the project on a chosen image as:
-* Ubuntu: `docker run --network host --rm -v "$PWD:/repository" monko-build:ubuntu <gradle commands>`
+
+* Debian/Ubuntu: `docker run --network host --rm -v "$PWD:/repository" monko-build:ubuntu <gradle commands>`
 * OSX: `docker run --network host --rm -v "$PWD:/repository" monko-build:osx <gradle commands>`

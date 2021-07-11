@@ -3,6 +3,8 @@ package dev.petuska.monko.core
 import dev.petuska.monko.core.bson.MonkoBson
 import dev.petuska.monko.core.bson.MonkoBsonC
 import dev.petuska.monko.core.ext.Document
+import dev.petuska.monko.core.ext.MongoDatabase
+import dev.petuska.monko.core.util.MonkoCommandException
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
@@ -19,10 +21,10 @@ import mongoc.mongoc_database_t
 
 internal class MonkoDatabaseC(
   override val client: MonkoClientC,
-  override val dbName: String
-) : MonkoDatabase {
-  override val source: MonkoDatabase = this
-  internal val c: CPointer<mongoc_database_t> = mongoc_client_get_database(client.c, dbName)!!
+  override val name: String
+) : MonkoDatabase, MongoDatabase {
+  override val source: MongoDatabase = this
+  override val c: CPointer<mongoc_database_t> = mongoc_client_get_database(client.c, name)!!
 
   override suspend fun collection(name: String): MonkoCollection<Document> = MonkoCollectionC(this, name)
 
@@ -36,17 +38,17 @@ internal class MonkoDatabaseC(
       val error = alloc<bson_error_t>().ptr
 
       if (mongoc_database_command_with_opts(
-          c,
-          command.bson,
-          null,
-          null,
-          reply,
-          null,
+          database = c,
+          command = command.c,
+          read_prefs = null,
+          opts = null,
+          reply = reply,
+          error = error,
         )
       ) {
         MonkoBsonC(reply)
       } else {
-        throw IllegalStateException("Command failed - $error")
+        throw MonkoCommandException("runCommand", error)
       }
     }
   }

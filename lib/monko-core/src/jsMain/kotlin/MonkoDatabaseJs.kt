@@ -9,9 +9,9 @@ import kotlinx.coroutines.await
 
 internal class MonkoDatabaseJs(
   override val client: MonkoClient,
-  override val dbName: String,
+  override val name: String,
   override val source: MongoDatabase,
-) : MonkoDatabase, MongoDatabase by source {
+) : MonkoDatabase {
   override suspend fun collection(name: String): MonkoCollection<Document> =
     MonkoCollectionJs(this, name, source.collection(name))
 

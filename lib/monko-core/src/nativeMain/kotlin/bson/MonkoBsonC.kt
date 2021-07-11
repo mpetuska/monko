@@ -11,10 +11,10 @@ import mongoc.bson_free
 import mongoc.bson_new_from_json
 import mongoc.bson_t
 
-internal class MonkoBsonC(override val bson: CPointer<bson_t>) : MonkoBson {
+internal class MonkoBsonC(override val c: CPointer<bson_t>) : MonkoBson {
   override val source: MonkoBson = this
   override fun toJson(): String {
-    val cJson = bson_as_relaxed_extended_json(bson, null)
+    val cJson = bson_as_relaxed_extended_json(c, null)
       ?: throw IllegalStateException("Unable to create JSON from given BSON - $this")
     val kJson = cJson.toKStringFromUtf8()
     bson_free(cJson)
@@ -22,7 +22,7 @@ internal class MonkoBsonC(override val bson: CPointer<bson_t>) : MonkoBson {
   }
 
   override fun close() {
-    bson_destroy(bson)
+    bson_destroy(c)
   }
 }
 
@@ -31,4 +31,8 @@ public actual fun bsonOf(json: String): MonkoBson {
     val cBson = bson_new_from_json(json.utf8.getPointer(this).reinterpret(), -1, null)!!
     MonkoBsonC(cBson)
   }
+}
+
+public fun CPointer<bson_t>.extractJsonAndClose(): String = MonkoBsonC(this).run {
+  toJson().also { close() }
 }

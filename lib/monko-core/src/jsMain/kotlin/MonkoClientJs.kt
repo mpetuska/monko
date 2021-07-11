@@ -12,7 +12,7 @@ public actual suspend fun MonkoClient(
   connectionStringNative: String?
 ): MonkoClient = MonkoClientJs(connect(connectionStringJS ?: connectionString).await())
 
-internal class MonkoClientJs(override val source: MongoClient) : MonkoClient, MongoClient by source {
+internal class MonkoClientJs(override val source: MongoClient) : MonkoClient {
   override suspend fun database(name: String): MonkoDatabase = MonkoDatabaseJs(this, name, source.db(name))
 
   override fun close() = source.close()

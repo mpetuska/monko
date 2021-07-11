@@ -12,12 +12,16 @@ import kotlinx.coroutines.withContext
 internal class MonkoDatabaseJvm(
   override val client: MonkoClientJvm,
   override val source: MongoDatabase,
-) : MonkoDatabase, MongoDatabase by source {
-  override val dbName: String
-    get() = name
-  override suspend fun collection(name: String): MonkoCollection<Document> = MonkoCollectionJvm(this, name, source.getCollection(name))
-  override suspend fun runCommand(command: MonkoBson): MonkoBson =
-    withContext(Dispatchers.Default) { MonkoBsonJvm(source.runCommand(command).awaitFirst()) }
+) : MonkoDatabase {
+  override val name: String
+    get() = source.name
 
   override fun close() = noop
+
+  override suspend fun collection(name: String): MonkoCollection<Document> =
+    MonkoCollectionJvm(this, name, source.getCollection(name))
+
+  override suspend fun runCommand(command: MonkoBson): MonkoBson = withContext(Dispatchers.Default) {
+    MonkoBsonJvm(source.runCommand(command).awaitFirst())
+  }
 }

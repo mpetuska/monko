@@ -1,5 +1,6 @@
 package dev.petuska.monko.core
 
+import dev.petuska.monko.core.ext.MongoClient
 import kotlinx.cinterop.CPointer
 import mongoc.mongoc_cleanup
 import mongoc.mongoc_client_destroy
@@ -21,15 +22,16 @@ public actual suspend fun MonkoClient.Companion.cleanup() {
   mongoc_cleanup()
 }
 
-internal class MonkoClientC(connectionString: String) : MonkoClient {
+internal class MonkoClientC(connectionString: String) : MonkoClient, MongoClient {
   companion object {
     init {
       mongoc_init()
     }
   }
-  override val source: MonkoClient = this
+
   private val uri: CPointer<mongoc_uri_t>
-  internal val c: CPointer<mongoc_client_t>
+  override val source: MongoClient = this
+  override val c: CPointer<mongoc_client_t>
 
   init {
     Companion

@@ -7,8 +7,8 @@ import dev.petuska.monko.core.ext.MongoDatabase
 import dev.petuska.monko.core.util.NativeCloseable
 import dev.petuska.monko.core.util.Proxy
 
-public interface MonkoDatabase : Proxy<MongoDatabase>, MongoDatabase, NativeCloseable {
-  public val dbName: String
+public interface MonkoDatabase : Proxy<MongoDatabase>, NativeCloseable {
+  public val name: String
   public val client: MonkoClient
   public suspend fun collection(name: String): MonkoCollection<Document>
   public suspend fun runCommand(command: MonkoBson): MonkoBson

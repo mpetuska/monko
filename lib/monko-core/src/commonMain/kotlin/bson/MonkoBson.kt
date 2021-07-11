@@ -9,3 +9,5 @@ public interface MonkoBson : Proxy<Bson>, Bson, NativeCloseable {
 }
 
 public expect fun bsonOf(json: String): MonkoBson
+
+public val EmptyBson: Bson = bsonOf("{}")

@@ -1,46 +1,33 @@
 package dev.petuska.monko.core
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import local.test.runBlockingTest
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
+import local.test.BlockingTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 
-class MonkoDatabaseTest {
-  private lateinit var client: Deferred<MonkoClient>
+class MonkoDatabaseTest : BlockingTest {
+  private lateinit var client: MonkoClient
+  private lateinit var database: MonkoDatabase
 
-  @BeforeTest
-  fun setUp() = runBlockingTest {
-    client = async { MonkoClient("mongodb://localhost:27017") }
+  override suspend fun beforeEach() {
+    client = MonkoClient("mongodb://localhost:27017")
+    database = client.database("${this::class.simpleName}")
   }
 
-  @AfterTest
-  fun tearDown() = runBlockingTest {
-    client.await().close()
-  }
-
-  @Test
-  fun isAbleToInitialise() = runBlockingTest {
-    val client = client.await()
-    client.database("test-db").close()
+  override suspend fun afterEach() {
+    client.close()
   }
 
   @Test
-  fun runTestCommand() = runBlockingTest {
-    val client = client.await()
-    val db = client.database("test-db")
+  fun collection() = test {
+    database.collection("test-collection")
+  }
+
+  @Test
+  fun runCommand() = test {
     val collection = "empty-collection"
-    val result = db.runCommand(
-      """{
-        |  "collStats": "$collection"
-        |}""".trimMargin()
+    val result = database.runCommand(
+      """{ "collStats": "$collection" }"""
     ).toJson()
-
-    db.close()
-
-    println(result)
-    assertContains(result, """"test-db.$collection"""")
+    assertContains(result, """"${database.name}.$collection"""")
   }
 }

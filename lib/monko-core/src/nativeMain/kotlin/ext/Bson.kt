@@ -1,8 +1,6 @@
 package dev.petuska.monko.core.ext
 
-import kotlinx.cinterop.CPointer
+import dev.petuska.monko.core.util.NativeProxy
 import mongoc.bson_t
 
-public actual interface Bson {
-  public val bson: CPointer<bson_t>
-}
+public actual interface Bson : NativeProxy<bson_t>

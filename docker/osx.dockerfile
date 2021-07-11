@@ -1,19 +1,24 @@
 FROM sickcodes/docker-osx:auto
+ARG user=run
+RUN useradd -ms /bin/bash --home-dir /repository $user
 
 RUN mkdir -p ~/.gradle && \
  echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties \
  echo "org.gradle.console=plain" >> ~/.gradle/gradle.properties
 
-WORKDIR /install
-COPY scripts/setupOSX.sh setup.sh
-RUN rm -rf scripts/mongo-c-driver*
-RUN ls -a scripts
-RUN ./setup.sh
+WORKDIR /install-libmongoc
+COPY scripts scripts
+RUN ./scripts/setupOSX.sh
 
-USER $USER
+WORKDIR /install-gradle
+COPY . .
+RUN sudo chown -R $user "$PWD"
+USER $user
+RUN ./gradlew compile
+
 WORKDIR /repository
-COPY gradle gradle
-COPY gradlew gradlew
-RUN ./gradlew --no-daemon --version
+USER root
+RUN rm -rf /install*
+USER $user
 
 ENTRYPOINT ["./gradlew"]

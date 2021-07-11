@@ -1,3 +1,6 @@
 package dev.petuska.monko.core.ext
 
-public actual interface MongoClient
+import dev.petuska.monko.core.util.NativeProxy
+import mongoc.mongoc_client_t
+
+public actual interface MongoClient : NativeProxy<mongoc_client_t>
