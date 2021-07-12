@@ -27,14 +27,17 @@ env:
 
 jobs:
   check:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.runner }}
     strategy:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
+          - runner: macos-latest
+            libmongocScript: ./scripts/setupOSX.sh
+          - runner: windows-latest
+            libmongocScript: ./scripts/setupMingw.sh
+          - runner: ubuntu-latest
+            libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - uses: actions/checkout@v2
       - name: Restore Gradle cache
@@ -42,23 +45,26 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: |
+            scripts/build
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os.runner }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os.runner }}-gradle-
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
+      - run: ${{ matrix.os.libmongocScript }}
+        shell: bash
       - run: ./gradlew check publishToMavenLocal --info
         name: Gradle Check
 
   release-Artefacts:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.runner }}
     needs: [ check ]
     env:
       GH_USERNAME: ${{ github.actor }}
@@ -80,9 +86,12 @@ jobs:
             tasks: publishToSonatype closeSonatypeStagingRepository
             enabled: ${{ github.event.inputs.skipMavenCentral != 'y' && true }}
         os:
-          - macos-latest
-          - windows-latest
-          - ubuntu-latest
+          - runner: macos-latest
+            libmongocScript: ./scripts/setupOSX.sh
+          - runner: windows-latest
+            libmongocScript: ./scripts/setupMingw.sh
+          - runner: ubuntu-latest
+            libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - uses: actions/checkout@v2
         if: ${{ matrix.repository.enabled == true }}
@@ -92,19 +101,22 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: |
+            scripts/build
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os.runner }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os.runner }}-gradle-
       - uses: actions/setup-java@v2
         if: ${{ matrix.repository.enabled == true }}
         with:
           distribution: 'adopt'
           java-version: 11
+      - run: ${{ matrix.os.libmongocScript }}
+        shell: bash
       - name: Gradle Publish
         if: ${{ matrix.repository.enabled == true }}
         shell: bash
@@ -129,13 +141,15 @@ jobs:
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os.runner }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os.runner }}-gradle-
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
+      - run: ${{ matrix.os.libmongocScript }}
+        shell: bash
       - name: Build Dokka Pages
         shell: bash
         run: |

@@ -2,9 +2,9 @@
 
 
 pacman --noconfirm -Syu
-pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
-pacman --noconfirm -S mingw-w64-x86_64-extra-cmake-modules make tar
-pacman --noconfirm -S mingw64/mingw-w64-x86_64-cyrus-sasl
+pacman --noconfirm -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
+pacman --noconfirm -S --needed mingw-w64-x86_64-extra-cmake-modules make tar
+pacman --noconfirm -S --needed mingw64/mingw-w64-x86_64-cyrus-sasl
 
 set -o allexport
 sudo() {

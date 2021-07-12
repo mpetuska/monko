@@ -2,18 +2,25 @@
 [![Dokka docs](https://img.shields.io/badge/docs-dokka-orange?style=flat-square)](http://mpetuska.github.io/monko)
 [![Version maven-central](https://img.shields.io/maven-central/v/dev.petuska/monko?logo=apache-maven&style=flat-square)](https://mvnrepository.com/artifact/dev.petuska/monko/latest)
 
-# MONKO
+# MONKO [EXPERIMENTAL]
 
 Kotlin multiplatform bindings for mongodb driver.
 
 Has a baseline setup for a multiplatform library supporting all kotlin
-server-side [targets](https://kotlinlang.org/docs/mpp-supported-platforms.html)
+server-side [targets](https://kotlinlang.org/docs/mpp-supported-platforms.html).
 
 * JVM
 * JS (NodeJs)
 * LinuxX64
 * MingwX64
 * MacOSX64
+
+The library tries to integrate with native libraries for each platform to the best of its ability, while also exposing
+the native objects directly via `source` property on Monko objects.
+
+* JVM -> [mongo-java-driver](https://mongodb.github.io/mongo-java-driver/)
+* JS (NodeJs) -> [mongo-node-driver](https://docs.mongodb.com/drivers/node/current/)
+* LinuxX64, MingwX64, MacOSX64 -> [mongo-c-driver](http://mongoc.org/)
 
 # Local Setup
 
