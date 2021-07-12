@@ -15,7 +15,7 @@ kotlin {
     }
     named("jvmMain") {
       dependencies {
-        api(kotlin("test-junit"))
+        api(kotlin("test-junit5"))
       }
     }
     named("jsMain") {

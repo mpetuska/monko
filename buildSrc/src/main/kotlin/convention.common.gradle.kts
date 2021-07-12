@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinTest
+
 plugins {
   id("org.jlleitschuh.gradle.ktlint")
   idea
@@ -21,5 +24,13 @@ idea {
 tasks {
   withType<Test> {
     useJUnitPlatform()
+  }
+  register("compile") {
+    dependsOn(withType(AbstractKotlinCompile::class))
+    group = "build"
+  }
+  register("test") {
+    dependsOn(withType(KotlinTest::class))
+    group = "verification"
   }
 }

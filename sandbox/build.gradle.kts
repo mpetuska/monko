@@ -1,5 +1,5 @@
 plugins {
-  kotlin("jvm") version "1.5.10"
+  kotlin("jvm") version "1.5.20"
   application
 }
 
@@ -16,6 +16,6 @@ application {
 }
 
 dependencies {
-  implementation("dev.petuska:template-kmp-library")
+  implementation("dev.petuska:monko")
   testImplementation("dev.petuska:test")
 }

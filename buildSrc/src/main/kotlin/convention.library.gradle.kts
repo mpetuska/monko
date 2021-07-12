@@ -1,6 +1,7 @@
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import util.nativeTargetGroup
-import util.KotlinTargetDetails
 
 plugins {
   kotlin("multiplatform")
@@ -12,93 +13,61 @@ kotlin {
   explicitApi()
   jvm()
   js {
-    binaries.library()
     useCommonJs()
     nodejs()
-//          browser {
-//            commonWebpackConfig {
-//              cssSupport.enabled = true
-//            }
-//            testTask {
-//              useKarma {
-//                useFirefox()
-//                useChrome()
-//                useSafari()
-//              }
-//            }
-//          }
   }
 
   nativeTargetGroup(
-    "androidNdk",
-    androidNativeArm32(),
-    androidNativeArm64(),
-  )
-
-  nativeTargetGroup(
-    "linux",
+    "desktop",
+    macosX64(),
     linuxX64(),
-    linuxMips32(),
-    linuxMipsel32(),
-    linuxArm64(),
-    linuxArm32Hfp(),
-  )
-
-  nativeTargetGroup(
-    "ios",
-    iosArm32(),
-    iosArm64(),
-    iosX64(),
-  )
-
-  nativeTargetGroup(
-    "watchos",
-    watchosArm32(),
-    watchosArm64(),
-    watchosX86(),
-    watchosX64(),
-  )
-
-  nativeTargetGroup(
-    "tvos",
-    tvosArm64(),
-    tvosX64(),
-  )
-
-  macosX64()
-
-  nativeTargetGroup(
-    "mingw",
-    mingwX86(),
     mingwX64(),
   )
 
   sourceSets {
-    commonTest {
+    val commonMain by getting {
+      dependencies {
+        api("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
+      }
+    }
+    val commonTest by getting {
       dependencies {
         implementation(project(":test"))
       }
     }
-  }
-
-  val targetsWithCoroutines = KotlinTargetDetails.values()
-    .filter(KotlinTargetDetails::hasCoroutines)
-    .map(KotlinTargetDetails::presetName)
-
-  targets.filter { it.preset?.name in targetsWithCoroutines }
-    .forEach {
-      it.compilations["main"].defaultSourceSet {
-        dependencies {
-          api("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
-        }
-      }
+    val nativeMain by creating {
+      dependsOn(commonMain)
     }
+    val nativeTest by creating {
+      dependsOn(commonTest)
+    }
+    targets.filterIsInstance<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>()
+      .map { it.compilations["main"].defaultSourceSet to it.compilations["test"].defaultSourceSet }
+      .forEach { (main, test) ->
+        main.dependsOn(nativeMain)
+        test.dependsOn(nativeTest)
+      }
+  }
 }
 
 tasks {
   withType<KotlinCompile> {
     kotlinOptions {
       jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
+    }
+  }
+  withType<CInteropProcess>{
+    onlyIf {
+      (konanTarget.name.contains("mingw", true) && currentOS.isWindows) ||
+          (konanTarget.name.contains("linux", true) && currentOS.isLinux) ||
+          (konanTarget.name.contains("os", true) && currentOS.isMacOsX)
+    }
+  }
+  withType<AbstractKotlinNativeCompile<*, *>> {
+    onlyIf {
+      (target.contains("mingw", true) && currentOS.isWindows) ||
+          (target.contains("linux", true) && currentOS.isLinux) ||
+          (target.contains("os", true) && currentOS.isMacOsX)
     }
   }
 }

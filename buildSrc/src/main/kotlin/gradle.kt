@@ -1,6 +1,12 @@
 import groovy.lang.Closure
+import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.internal.os.OperatingSystem
+import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
+
+
+internal val currentOS = OperatingSystem.current()
 
 typealias Lambda<R, V> = R.() -> V
 
@@ -26,3 +32,17 @@ object Git {
     child.inputStream.readAllBytes().toString(Charset.defaultCharset()).trim()
   }
 }
+
+fun Project.execAndCapture(cmd: String): String? =
+    ByteArrayOutputStream().use { stream ->
+      try {
+        exec {
+          commandLine(*cmd.split(" ").toTypedArray())
+          standardOutput = stream
+        }
+          .takeIf { it.exitValue == 0 }
+          .let { stream.toString().trim() }
+      } catch (e: Exception) {
+        null
+      }
+    }
