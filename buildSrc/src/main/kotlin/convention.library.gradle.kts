@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
+import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import util.nativeTargetGroup
 
@@ -55,10 +56,17 @@ tasks {
       jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
     }
   }
+  withType<CInteropProcess>{
+    onlyIf {
+      (konanTarget.name.contains("mingw", true) && currentOS.isWindows) ||
+          (konanTarget.name.contains("linux", true) && currentOS.isLinux) ||
+          (konanTarget.name.contains("os", true) && currentOS.isMacOsX)
+    }
+  }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      (target.startsWith("mingw") && currentOS.isWindows) ||
-          (target.startsWith("linux") && currentOS.isLinux) ||
+      (target.contains("mingw", true) && currentOS.isWindows) ||
+          (target.contains("linux", true) && currentOS.isLinux) ||
           (target.contains("os", true) && currentOS.isMacOsX)
     }
   }
