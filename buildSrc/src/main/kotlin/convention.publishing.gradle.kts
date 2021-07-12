@@ -1,6 +1,7 @@
-import util.controlPublications
-import util.isMainOS
-import util.mainOS
+import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import util.KotlinTargetDetails
+import util.NativeHost
 
 plugins {
   id("convention.library")
@@ -8,6 +9,9 @@ plugins {
   `maven-publish`
   signing
 }
+
+internal val mainOS = OperatingSystem.forName(project.properties["project.mainOS"] as String)
+internal val isMainOS = currentOS == mainOS
 
 logger.info(
   """
@@ -104,5 +108,54 @@ publishing {
 }
 
 kotlin {
-  controlPublications(targets)
+  val claimedTargets = mutableSetOf<KotlinTarget>()
+  fun filterTargetsByHost(host: NativeHost?): Collection<KotlinTarget> = KotlinTargetDetails.values()
+    .filter { host?.let { h -> h in it.supportedBuildHosts } ?: it.supportedBuildHosts.isEmpty() }
+    .map { it.presetName }
+    .run { targets.filter { it.preset?.name in this && it !in claimedTargets } }
+    .also { claimedTargets.addAll(it) }
+
+  val crossPlatformTargets = filterTargetsByHost(null)
+
+  val windowsHostTargets = filterTargetsByHost(NativeHost.WINDOWS)
+  val linuxHostTargets = filterTargetsByHost(NativeHost.LINUX)
+  val osxHostTargets = filterTargetsByHost(NativeHost.OSX)
+  val mainHostTargets = crossPlatformTargets + Named { "kotlinMultiplatform" }
+
+  fun Collection<Named>.onlyPublishIf(enabled: Spec<in Task>) {
+    val publications: Collection<String> = map { it.name }
+    afterEvaluate {
+      publishing {
+        publications {
+          matching { it.name in publications }.all {
+            val targetPublication = this@all
+            tasks.withType<AbstractPublishToMaven>()
+              .matching { it.publication == targetPublication }
+              .configureEach {
+                onlyIf(enabled)
+              }
+            tasks.withType<GenerateModuleMetadata>()
+              .matching { it.publication.get() == targetPublication }
+              .configureEach {
+                onlyIf(enabled)
+              }
+            tasks.withType<PublishToMavenRepository>()
+              .matching { it.publication == targetPublication }
+              .configureEach {
+                onlyIf(enabled)
+              }
+          }
+        }
+      }
+    }
+  }
+
+  logger.info("Linux host targets: $linuxHostTargets")
+  logger.info("OSX host targets: $osxHostTargets")
+  logger.info("Windows host targets: $windowsHostTargets")
+  logger.info("Main host targets: $mainHostTargets")
+  linuxHostTargets.onlyPublishIf { currentOS.isLinux }
+  osxHostTargets.onlyPublishIf { currentOS.isMacOsX }
+  windowsHostTargets.onlyPublishIf { currentOS.isWindows }
+  mainHostTargets.onlyPublishIf { isMainOS }
 }
