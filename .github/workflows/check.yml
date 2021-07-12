@@ -19,12 +19,15 @@ jobs:
           - runner: macos-latest
             libmongocScript: ./scripts/setupOSX.sh
             shell: bash
+            runTests: false
           - runner: windows-latest
             libmongocScript: ./scripts/setupMingw.sh
             shell: msys2
+            runTests: false
           - runner: ubuntu-latest
             libmongocScript: ./scripts/setupUbuntu.sh
             shell: bash
+            runTests: true
     steps:
       - uses: actions/checkout@v2
       - name: Restore Gradle cache
@@ -54,8 +57,19 @@ jobs:
       - run: ${{ matrix.os.shell }} -c '${{ matrix.os.libmongocScript }}'
         name: Setup libmongoc
       - name: Start mongodb
+        if: ${{ matrix.os.runTests }}
         run: docker run -d --rm -p 27017:27017 --name mongodb mongo
-      - run: ${{ matrix.os.shell }} -c './gradlew assemble check --info'
+      - run: ${{ matrix.os.shell }} -c './gradlew check'
+        if: ${{ matrix.os.runTests }}
         name: Gradle Check
       - name: Stop mongodb
+        if: ${{ matrix.os.runTests && (success() || failure()) }}
         run: docker container stop mongodb
+      - run: ${{ matrix.os.shell }} -c './gradlew compile assemble'
+        name: Gradle Compile
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: reports-${{ matrix.os.runner }}
+          path: |
+            **/build/reports

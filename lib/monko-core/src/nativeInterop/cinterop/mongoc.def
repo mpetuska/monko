@@ -13,6 +13,5 @@ linkerOpts = -L/usr/local/lib -lmongoc-1.0 -lbson-1.0
 
 
 # MINGW
-compilerOpts.mingw = "-IC:/Program Files (x86)/mongo-c-driver/include/libmongoc-1.0" "-IC:/Program Files (x86)/mongo-c-driver/include/libbson-1.0"
-linkerOpts.mingw = -L'C:/Program Files (x86)/mongo-c-driver/lib' -lmongoc-1.0 -lbson-1.0
-
+compilerOpts.mingw = -I"C:\Program Files (x86)\mongo-c-driver\include\libmongoc-1.0" -I"C:\Program Files (x86)\mongo-c-driver\include\libbson-1.0"
+linkerOpts.mingw = -L"C:\Program Files (x86)\mongo-c-driver\lib" -lmongoc-1.0 -lbson-1.0

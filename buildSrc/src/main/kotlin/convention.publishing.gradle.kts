@@ -132,6 +132,12 @@ kotlin {
             .configureEach {
               onlyIf(enabled)
             }
+          tasks.withType<GenerateModuleMetadata>()
+            .matching { it.publication.get() == targetPublication }
+            .configureEach {
+              println(name)
+              onlyIf(enabled)
+            }
         }
       }
     }

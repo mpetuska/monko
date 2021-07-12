@@ -12,5 +12,5 @@ sudo() {
  $COMMAND
 }
 
-export EXTRA_CMAKE_CONFIG="-G 'MSYS Makefiles'"
+export CMAKE_GENERATOR="MSYS Makefiles"
 "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.build.sh"

@@ -23,7 +23,7 @@ class MonkoCollectionTest : BlockingTest {
   }
 
   @Test
-  fun countDocuments() = test {
+  fun countDocuments() = blockingTest {
     assertEquals(0, collection.countDocuments())
   }
 }

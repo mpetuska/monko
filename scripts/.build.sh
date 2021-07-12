@@ -14,13 +14,9 @@ cd "mongo-c-driver-${VERSION}" || exit 1
 mkdir -p cmake-build
 cd cmake-build || exit 1
 
-if [[ -v ${EXTRA_CMAKE_CONFIG} ]]; then
-    EXTRA_CMAKE_CONFIG="$EXTRA_CMAKE_CONFIG "
-fi
-
 echo "[main] Configuring CMAKE in: $PWD"
 cmake .. \
-  "${EXTRA_CMAKE_CONFIG}-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF" \
+  "-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF" \
   "-DCMAKE_OSX_ARCHITECTURES=x86_64;" \
   "-DCMAKE_BUILD_TYPE=Debug"
 

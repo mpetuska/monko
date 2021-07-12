@@ -8,7 +8,7 @@ interface BlockingTest {
   suspend fun beforeEach() {}
   suspend fun afterEach() {}
 
-  fun test(action: suspend CoroutineScope.() -> Unit) = runBlocking {
+  fun blockingTest(action: suspend CoroutineScope.() -> Unit) = runBlocking {
     try {
       beforeEach()
       action()

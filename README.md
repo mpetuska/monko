@@ -18,9 +18,9 @@ server-side [targets](https://kotlinlang.org/docs/mpp-supported-platforms.html).
 The library tries to integrate with native libraries for each platform to the best of its ability, while also exposing
 the native objects directly via `source` property on Monko objects.
 
-* JVM -> [mongo-java-driver](https://mongodb.github.io/mongo-java-driver/)
-* JS (NodeJs) -> [mongo-node-driver](https://docs.mongodb.com/drivers/node/current/)
-* LinuxX64, MingwX64, MacOSX64 -> [mongo-c-driver](http://mongoc.org/)
+* JVM -> [mongo-java-driver@4.2.3](https://github.com/mongodb/mongo-java-driver/tree/r4.2.3)
+* JS (NodeJs) -> [node-mongodb-native@3.6.10](https://github.com/mongodb/node-mongodb-native/tree/v3.6.10)
+* LinuxX64, MingwX64, MacOSX64 -> [mongo-c-driver@1.17.7](https://github.com/mongodb/mongo-c-driver/tree/1.17.7)
 
 # Local Setup
 

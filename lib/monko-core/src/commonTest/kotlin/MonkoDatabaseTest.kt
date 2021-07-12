@@ -18,12 +18,12 @@ class MonkoDatabaseTest : BlockingTest {
   }
 
   @Test
-  fun collection() = test {
+  fun collection() = blockingTest {
     database.collection("test-collection")
   }
 
   @Test
-  fun runCommand() = test {
+  fun runCommand() = blockingTest {
     val collection = "empty-collection"
     val result = database.runCommand(
       """{ "collStats": "$collection" }"""

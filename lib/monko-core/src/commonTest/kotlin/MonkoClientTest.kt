@@ -15,7 +15,7 @@ class MonkoClientTest : BlockingTest {
   }
 
   @Test
-  fun database() = test {
+  fun database() = blockingTest {
     client.database("test-database")
   }
 }
