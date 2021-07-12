@@ -1,6 +1,7 @@
 plugins {
   id("convention.publishing-nexus")
   id("com.github.jakemarsden.git-hooks")
+  id("com.dorongold.task-tree")
 }
 
 gitHooks {
