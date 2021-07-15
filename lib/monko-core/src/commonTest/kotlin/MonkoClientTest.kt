@@ -1,5 +1,6 @@
 package dev.petuska.monko.core
 
+import dev.petuska.monko.core.test.MONGO_URL
 import local.test.BlockingTest
 import kotlin.test.Test
 
@@ -7,7 +8,7 @@ class MonkoClientTest : BlockingTest {
   lateinit var client: MonkoClient
 
   override suspend fun beforeEach() {
-    client = MonkoClient("mongodb://localhost:27017")
+    client = MonkoClient(MONGO_URL)
   }
 
   override suspend fun afterEach() {

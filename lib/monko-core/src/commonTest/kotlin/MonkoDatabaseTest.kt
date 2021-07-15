@@ -1,5 +1,6 @@
 package dev.petuska.monko.core
 
+import dev.petuska.monko.core.test.MONGO_URL
 import local.test.BlockingTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -9,7 +10,7 @@ class MonkoDatabaseTest : BlockingTest {
   private lateinit var database: MonkoDatabase
 
   override suspend fun beforeEach() {
-    client = MonkoClient("mongodb://localhost:27017")
+    client = MonkoClient(MONGO_URL)
     database = client.database("${this::class.simpleName}")
   }
 

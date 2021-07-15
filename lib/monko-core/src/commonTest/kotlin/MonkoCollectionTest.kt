@@ -1,6 +1,7 @@
 package dev.petuska.monko.core
 
 import dev.petuska.monko.core.ext.Document
+import dev.petuska.monko.core.test.MONGO_URL
 import local.test.BlockingTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +12,7 @@ class MonkoCollectionTest : BlockingTest {
   private lateinit var collection: MonkoCollection<Document>
 
   override suspend fun beforeEach() {
-    client = MonkoClient("mongodb://localhost:27017")
+    client = MonkoClient(MONGO_URL)
     database = client.database("test-db")
     collection = database.collection("test-collection")
   }
