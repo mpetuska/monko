@@ -15,6 +15,7 @@ env:
 
 jobs:
   check:
+    name: Check on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
     strategy:
       fail-fast: false
