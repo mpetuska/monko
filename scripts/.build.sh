@@ -5,9 +5,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build"
 mkdir -p "$ROOT" && cd "$ROOT" || exit 1
 if [[ ! -d "mongo-c-driver-${VERSION}" ]]; then
   echo "[main] mongo-c-driver-${VERSION} not found in $ROOT; Downloading..."
-  wget "https://github.com/mongodb/mongo-c-driver/releases/download/${VERSION}/mongo-c-driver-${VERSION}.tar.gz"
-  tar xzf "mongo-c-driver-${VERSION}.tar.gz"
-  rm -rf "mongo-c-driver-${VERSION}.tar.gz"
+  curl -O -L "https://github.com/mongodb/mongo-c-driver/releases/download/${VERSION}/mongo-c-driver-${VERSION}.tar.gz"
+  tar xzf "mongo-c-driver-${VERSION}.tar.gz" || exit 1
+  rm -rf "mongo-c-driver-${VERSION}.tar.gz" || exit 1
 fi
 
 cd "mongo-c-driver-${VERSION}" || exit 1

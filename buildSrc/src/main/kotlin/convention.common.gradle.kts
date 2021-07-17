@@ -21,6 +21,11 @@ idea {
   }
 }
 
+ktlint {
+  version to "${project.properties["ktlint.version"]}"
+  additionalEditorconfigFile to rootDir.resolve(".editorconfig")
+}
+
 tasks {
   withType<Test> {
     useJUnitPlatform()
