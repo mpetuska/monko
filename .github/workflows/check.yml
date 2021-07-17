@@ -32,7 +32,7 @@ jobs:
             shell: bash
           - runner: windows-latest
             libmongocScript: ./scripts/setupWindows.sh
-            shell: C:\msys64\usr\bin\bash.exe --noprofile --norc -e -o pipefail {0}
+            shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -here -defterm /bin/bash --noprofile --norc -e -o pipefail {0}
     steps:
       - uses: actions/checkout@v2
 
