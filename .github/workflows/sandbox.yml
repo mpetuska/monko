@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup libmongoc
         shell: bash
-        run: ./scripts/setupMingw
+        run: ./scripts/setupMingw.sh
 
       - name: Gradle Compile
         shell: bash
