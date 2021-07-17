@@ -1,7 +1,6 @@
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
-import util.KotlinTargetDetails
-import util.NativeHost
 
 plugins {
   id("convention.library")
@@ -94,20 +93,6 @@ publishing {
 }
 
 kotlin {
-  val claimedTargets = mutableSetOf<KotlinTarget>()
-  fun filterTargetsByHost(host: NativeHost?): Collection<KotlinTarget> = KotlinTargetDetails.values()
-    .filter { host?.let { h -> h in it.supportedBuildHosts } ?: it.supportedBuildHosts.isEmpty() }
-    .map { it.presetName }
-    .run { targets.filter { it.preset?.name in this && it !in claimedTargets } }
-    .also { claimedTargets.addAll(it) }
-
-  val crossPlatformTargets = filterTargetsByHost(null)
-
-  val windowsHostTargets = filterTargetsByHost(NativeHost.WINDOWS)
-  val linuxHostTargets = filterTargetsByHost(NativeHost.LINUX)
-  val osxHostTargets = filterTargetsByHost(NativeHost.OSX)
-  val mainHostTargets = crossPlatformTargets + Named { "kotlinMultiplatform" }
-
   fun Collection<Named>.onlyPublishIf(enabled: Spec<in Task>) {
     val publications: Collection<String> = map { it.name }
     afterEvaluate {
@@ -136,6 +121,12 @@ kotlin {
     }
   }
 
+  val nativeTargets = targets.withType<KotlinNativeTarget>()
+  val windowsHostTargets = nativeTargets.filter { it.konanTarget.family == Family.MINGW }
+  val linuxHostTargets =
+    nativeTargets.filter { it.konanTarget.family == Family.LINUX || it.konanTarget.family == Family.ANDROID }
+  val osxHostTargets = nativeTargets.filter { it.konanTarget.family.isAppleFamily }
+  val mainHostTargets = targets.filter { it !in nativeTargets } + Named { "kotlinMultiplatform" }
   logger.info("Linux host targets: $linuxHostTargets")
   logger.info("OSX host targets: $osxHostTargets")
   logger.info("Windows host targets: $windowsHostTargets")

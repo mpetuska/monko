@@ -15,6 +15,7 @@ class MonkoDatabaseTest : BlockingTest {
   }
 
   override suspend fun afterEach() {
+    database.close()
     client.close()
   }
 

@@ -1,4 +1,7 @@
 name: Check
+defaults:
+  run:
+    shell: bash
 
 on:
   pull_request:
@@ -8,6 +11,7 @@ on:
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  MONGO_URL: ${{ secrets.MONGO_URL }}
 
 jobs:
   check:
@@ -18,18 +22,13 @@ jobs:
         os:
           - runner: macos-latest
             libmongocScript: ./scripts/setupOSX.sh
-            shell: bash
-            runTests: false
-          - runner: windows-latest
-            libmongocScript: ./scripts/setupMingw.sh
-            shell: msys2
-            runTests: false
           - runner: ubuntu-latest
             libmongocScript: ./scripts/setupUbuntu.sh
-            shell: bash
-            runTests: true
+          - runner: windows-latest
+            libmongocScript: ./scripts/setupWindows.sh
     steps:
       - uses: actions/checkout@v2
+
       - name: Restore Gradle cache
         id: cache
         uses: actions/cache@v2.1.6
@@ -41,32 +40,22 @@ jobs:
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.os.shell == 'msys2' }}
-        with:
-          msystem: MINGW64
-          path-type: inherit
-          update: true
-      - run: ${{ matrix.os.shell }} -c '${{ matrix.os.libmongocScript }}'
-        name: Setup libmongoc
-      - name: Start mongodb
-        if: ${{ matrix.os.runTests }}
-        run: docker run -d --rm -p 27017:27017 --name mongodb mongo
-      - run: ${{ matrix.os.shell }} -c './gradlew check'
-        if: ${{ matrix.os.runTests }}
-        name: Gradle Check
-      - name: Stop mongodb
-        if: ${{ matrix.os.runTests && (success() || failure()) }}
-        run: docker container stop mongodb
-      - run: ${{ matrix.os.shell }} -c './gradlew compile assemble'
-        name: Gradle Compile
+
+      - name: Setup libmongoc
+        run: ${{ matrix.os.libmongocScript }}
+
+      - name: Gradle Check
+        run: ./gradlew check
+
+      - name: Gradle Compile
+        run: ./gradlew compile assemble
+
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:

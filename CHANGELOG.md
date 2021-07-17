@@ -5,10 +5,10 @@
 * [mongo-c-driver@1.17.7](https://github.com/mongodb/mongo-c-driver/tree/1.17.7)
 
 ## Changes
-* Initial API structure unlocking progies into native objects for each platform
+* Initial API structure unlocking proxies into native objects for each platform
 * `MonkoClient::database` implementation
 * `MonkoDatabase::runCommand` implementation
 * `MonkoDatabase::collection` implementation
 * `MonkoCollection::count` implementation
 * `MonkoBson` implementation and two-way conversions from/to string
-* GH Actions adjusted to work with native `libmongoc` and `MSYS2`
+* GH Actions adjusted to work with native `libmongoc`

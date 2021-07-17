@@ -3,8 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import util.nativeTargetGroup
 
 plugins {
   kotlin("multiplatform")
@@ -19,13 +17,9 @@ kotlin {
     useCommonJs()
     nodejs()
   }
-
-  nativeTargetGroup(
-    "desktop",
-    macosX64(),
-    linuxX64(),
-    mingwX64(),
-  )
+  macosX64()
+  linuxX64()
+  mingwX64()
 
   sourceSets {
     val commonMain by getting {
@@ -57,15 +51,14 @@ tasks {
       jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
     }
   }
-  withType<CInteropProcess>{
+  withType<CInteropProcess> {
     onlyIf {
       konanTarget == HostManager.host
     }
   }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      val konanTarget = kotlin.targets[target] as? KonanTarget
-      konanTarget == HostManager.host
+      compilation.konanTarget == HostManager.host
     }
   }
 }

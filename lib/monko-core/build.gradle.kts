@@ -14,8 +14,8 @@ kotlin {
   sourceSets {
     named("jvmMain") {
       dependencies {
-        api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:_")
         api("org.mongodb:mongodb-driver-reactivestreams:_")
+        api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:_")
       }
     }
     named("jsMain") {

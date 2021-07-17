@@ -1,16 +1,21 @@
 name: Sandbox
+defaults:
+  run:
+    shell: bash
 
 on:
   workflow_dispatch:
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  MONGO_URL: ${{ secrets.MONGO_URL }}
 
 jobs:
   check:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Restore Gradle cache
         id: cache
         uses: actions/cache@v2.1.6
@@ -23,17 +28,16 @@ jobs:
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', './scripts/setupMingw.sh') }}
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
 
       - name: Setup libmongoc
-        shell: bash
         run: ./scripts/setupMingw.sh
 
       - name: Gradle Compile
-        shell: bash
         run: ./gradlew compile assemble
 
       - uses: actions/upload-artifact@v2
