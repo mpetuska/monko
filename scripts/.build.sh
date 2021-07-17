@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-VERSION=1.17.7
+VERSION=1.18.0
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build"
 mkdir -p "$ROOT" && cd "$ROOT" || exit 1
 if [[ ! -d "mongo-c-driver-${VERSION}" ]]; then
+  rm -rf ./**
   echo "[main] mongo-c-driver-${VERSION} not found in $ROOT; Downloading..."
   curl -O -L "https://github.com/mongodb/mongo-c-driver/releases/download/${VERSION}/mongo-c-driver-${VERSION}.tar.gz"
   tar xzf "mongo-c-driver-${VERSION}.tar.gz" || exit 1
