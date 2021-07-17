@@ -3,7 +3,7 @@ headers = mongoc/mongoc.h
 #headerFilter = mongoc/* bson/*
 #excludeDependentModules = true
 
-compilerOpts = -I/usr/local/include/libmongoc-1.0 -I/usr/local/include/libbson-1.0
+compilerOpts = --std=c90 -I/usr/local/include/libmongoc-1.0 -I/usr/local/include/libbson-1.0
 linkerOpts = -L/usr/local/lib -lmongoc-1.0 -lbson-1.0
 
 #staticLibraries.linux = libmongoc-static-1.0.a libbson-static-1.0.a
@@ -13,5 +13,5 @@ linkerOpts = -L/usr/local/lib -lmongoc-1.0 -lbson-1.0
 
 
 # MINGW
-compilerOpts.mingw = -I"C:\Program Files (x86)\mongo-c-driver\include\libmongoc-1.0" -I"C:\Program Files (x86)\mongo-c-driver\include\libbson-1.0"
+compilerOpts.mingw = --std=c90 -I"C:\Program Files (x86)\mongo-c-driver\include\libmongoc-1.0" -I"C:\Program Files (x86)\mongo-c-driver\include\libbson-1.0"
 linkerOpts.mingw = -L"C:\Program Files (x86)\mongo-c-driver\lib" -lmongoc-1.0 -lbson-1.0
