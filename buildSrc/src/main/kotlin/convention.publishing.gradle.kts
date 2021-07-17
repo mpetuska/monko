@@ -131,10 +131,10 @@ kotlin {
   logger.info("OSX host targets: $osxHostTargets")
   logger.info("Windows host targets: $windowsHostTargets")
   logger.info("Main host targets: $mainHostTargets")
-  linuxHostTargets.onlyPublishIf { HostManager.hostIsLinux }
-  osxHostTargets.onlyPublishIf { HostManager.hostIsMac }
-  windowsHostTargets.onlyPublishIf { HostManager.hostIsMingw }
+  linuxHostTargets.onlyPublishIf { !CI || HostManager.hostIsLinux }
+  osxHostTargets.onlyPublishIf { !CI || HostManager.hostIsMac }
+  windowsHostTargets.onlyPublishIf { !CI || HostManager.hostIsMingw }
   mainHostTargets.onlyPublishIf {
-    HostManager.simpleOsName().equals("${project.properties["project.mainOS"]}", true)
+    !CI || HostManager.simpleOsName().equals("${project.properties["project.mainOS"]}", true)
   }
 }
