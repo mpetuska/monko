@@ -17,16 +17,22 @@ jobs:
   check:
     name: Check on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
     strategy:
       fail-fast: false
       matrix:
         os:
           - runner: macos-latest
             libmongocScript: ./scripts/setupOSX.sh
+            shell: bash
           - runner: ubuntu-latest
             libmongocScript: ./scripts/setupUbuntu.sh
+            shell: bash
           - runner: windows-latest
             libmongocScript: ./scripts/setupWindows.sh
+            shell: C:\msys64\usr\bin\bash.exe --noprofile --norc -e -o pipefail {0}
     steps:
       - uses: actions/checkout@v2
 
@@ -43,13 +49,13 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
 
+      - name: Setup libmongoc
+        run: ${{ matrix.os.libmongocScript }}
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
-
-      - name: Setup libmongoc
-        run: ${{ matrix.os.libmongocScript }}
 
       - name: Gradle Check
         run: ./gradlew check
