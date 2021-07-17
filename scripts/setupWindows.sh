@@ -16,4 +16,6 @@ sudo() {
 #export CMAKE_GENERATOR="Visual Studio 16 2019 Win64"
 export CMAKE_VS_PLATFORM_NAME_DEFAULT="x64"
 export CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE="x64"
+export CMAKE_C_STANDARD_REQUIRED="ON"
+export CMAKE_C_STANDARD="99"
 "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.build.sh"

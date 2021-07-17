@@ -10,8 +10,6 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
-import kotlinx.cinterop.toBoolean
-import kotlinx.cinterop.toByte
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mongoc.bson_error_t
@@ -46,7 +44,7 @@ internal class MonkoDatabaseC(
           opts = null,
           reply = reply,
           error = error,
-        ).toByte().toBoolean()
+        )
       ) {
         MonkoBsonC(reply)
       } else {
