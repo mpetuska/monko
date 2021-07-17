@@ -53,12 +53,12 @@ tasks {
   }
   withType<CInteropProcess> {
     onlyIf {
-      konanTarget == HostManager.host
+      konanTarget == HostManager.host && System.getenv("CI") != "true"
     }
   }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      compilation.konanTarget == HostManager.host
+      compilation.konanTarget == HostManager.host && System.getenv("CI") != "true"
     }
   }
 }
