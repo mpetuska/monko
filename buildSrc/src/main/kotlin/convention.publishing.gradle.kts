@@ -1,5 +1,5 @@
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 import util.KotlinTargetDetails
 import util.NativeHost
 
@@ -9,20 +9,6 @@ plugins {
   `maven-publish`
   signing
 }
-
-internal val mainOS = OperatingSystem.forName(project.properties["project.mainOS"] as String)
-internal val isMainOS = currentOS == mainOS
-
-logger.info(
-  """
-  [OS Info] CurrentOS: $currentOS
-  [OS Info] MainOS: $mainOS
-  [OS Info] IsMainOS: $isMainOS
-  [OS Info] IsLinux: ${currentOS.isLinux}
-  [OS Info] IsMacOSX: ${currentOS.isMacOsX}
-  [OS Info] IsWindows: ${currentOS.isWindows}
-""".trimIndent()
-)
 
 tasks {
   register<Jar>("javadocJar") {
@@ -154,8 +140,10 @@ kotlin {
   logger.info("OSX host targets: $osxHostTargets")
   logger.info("Windows host targets: $windowsHostTargets")
   logger.info("Main host targets: $mainHostTargets")
-  linuxHostTargets.onlyPublishIf { currentOS.isLinux }
-  osxHostTargets.onlyPublishIf { currentOS.isMacOsX }
-  windowsHostTargets.onlyPublishIf { currentOS.isWindows }
-  mainHostTargets.onlyPublishIf { isMainOS }
+  linuxHostTargets.onlyPublishIf { HostManager.hostIsLinux }
+  osxHostTargets.onlyPublishIf { HostManager.hostIsMac }
+  windowsHostTargets.onlyPublishIf { HostManager.hostIsMingw }
+  mainHostTargets.onlyPublishIf {
+    HostManager.simpleOsName().equals("${project.properties["project.mainOS"]}", true)
+  }
 }

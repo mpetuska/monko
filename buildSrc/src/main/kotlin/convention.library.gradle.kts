@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import util.nativeTargetGroup
 
 plugins {
@@ -41,12 +44,10 @@ kotlin {
     val nativeTest by creating {
       dependsOn(commonTest)
     }
-    targets.filterIsInstance<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>()
-      .map { it.compilations["main"].defaultSourceSet to it.compilations["test"].defaultSourceSet }
-      .forEach { (main, test) ->
-        main.dependsOn(nativeMain)
-        test.dependsOn(nativeTest)
-      }
+    targets.withType<KotlinNativeTarget> {
+      compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+      compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+    }
   }
 }
 
@@ -58,16 +59,13 @@ tasks {
   }
   withType<CInteropProcess>{
     onlyIf {
-      (konanTarget.name.contains("mingw", true) && currentOS.isWindows) ||
-          (konanTarget.name.contains("linux", true) && currentOS.isLinux) ||
-          (konanTarget.name.contains("os", true) && currentOS.isMacOsX)
+      konanTarget == HostManager.host
     }
   }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      (target.contains("mingw", true) && currentOS.isWindows) ||
-          (target.contains("linux", true) && currentOS.isLinux) ||
-          (target.contains("os", true) && currentOS.isMacOsX)
+      val konanTarget = kotlin.targets[target] as? KonanTarget
+      konanTarget == HostManager.host
     }
   }
 }

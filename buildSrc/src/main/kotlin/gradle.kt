@@ -1,12 +1,7 @@
 import groovy.lang.Closure
-import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.internal.os.OperatingSystem
-import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 
-
-internal val currentOS = OperatingSystem.current()
 
 typealias Lambda<R, V> = R.() -> V
 
@@ -27,22 +22,14 @@ infix fun <T> Property<T>.by(value: T) {
 
 object Git {
   val headCommitHash by lazy {
-    val child = Runtime.getRuntime().exec("git rev-parse --verify HEAD")
-    child.waitFor()
-    child.inputStream.readAllBytes().toString(Charset.defaultCharset()).trim()
+    execAndCapture("git rev-parse --verify HEAD")
   }
 }
 
-fun Project.execAndCapture(cmd: String): String? =
-    ByteArrayOutputStream().use { stream ->
-      try {
-        exec {
-          commandLine(*cmd.split(" ").toTypedArray())
-          standardOutput = stream
-        }
-          .takeIf { it.exitValue == 0 }
-          .let { stream.toString().trim() }
-      } catch (e: Exception) {
-        null
-      }
-    }
+fun execAndCapture(cmd: String): String? {
+  val child = Runtime.getRuntime().exec(cmd)
+  child.waitFor()
+  return if (child.exitValue() == 0) {
+    child.inputStream.readAllBytes().toString(Charset.defaultCharset()).trim()
+  } else null
+}
