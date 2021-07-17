@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
   id("convention.publishing")
 }
 
 kotlin {
-  targets.filterIsInstance<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>()
+  targets.filterIsInstance<KotlinNativeTarget>()
     .forEach { target ->
       target.compilations["main"].apply {
         cinterops {
