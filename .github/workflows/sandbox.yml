@@ -16,5 +16,5 @@ jobs:
     steps:
       - run: echo bash
         shell: bash
-      - run: pacman --noconfirm -Syu
+      - run: echo WORKS!!!; pacman --noconfirm -Syu
         shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -here --norc -noprofile -e -o pipefail {0}
