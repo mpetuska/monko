@@ -56,6 +56,13 @@ jobs:
           msystem: MINGW64
           update: true
           path-type: inherit
+          install: >-
+            tar
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-extra-cmake-modules
+            mingw64/mingw-w64-x86_64-cyrus-sasl
 
       - uses: actions/checkout@v2
 
@@ -161,6 +168,13 @@ jobs:
           msystem: MINGW64
           update: true
           path-type: inherit
+          install: >-
+            tar
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-extra-cmake-modules
+            mingw64/mingw-w64-x86_64-cyrus-sasl
 
       - name: Restore libmongoc cache
         if: ${{ matrix.repository.enabled == true }}
