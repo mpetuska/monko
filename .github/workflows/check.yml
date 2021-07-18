@@ -32,7 +32,7 @@ jobs:
             shell: bash
           - runner: windows-latest
             libmongocScript: ./scripts/setupWindows.sh
-            shell: msys2bash.cmd
+            shell: msys2bash
 #            shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -defterm -c '{0}'
     steps:
       - uses: actions/checkout@v2

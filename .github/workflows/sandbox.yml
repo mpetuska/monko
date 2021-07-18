@@ -1,7 +1,7 @@
 name: Sandbox
 defaults:
   run:
-    shell: bash
+    shell: msys2bash
 
 on:
   workflow_dispatch:
