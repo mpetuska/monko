@@ -14,4 +14,7 @@ jobs:
   check:
     runs-on: windows-latest
     steps:
+      - run: echo bash
+        shell: bash
       - run: pacman -Syu
+        shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -defterm --shell 'C:\msys64\usr\bin\env MSYSTEM=MSYS64 /usr/bin/bash -l' {0}
