@@ -50,6 +50,14 @@ jobs:
             shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
     steps:
+      - uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+
       - uses: actions/checkout@v2
 
       - name: Restore libmongoc cache
@@ -60,16 +68,13 @@ jobs:
             scripts/build
           key: ${{ runner.os }}-libmongoc-${{ hashFiles('${{ matrix.os.libmongocScript }}', 'scripts/build/**') }}
 
-      - uses: msys2/setup-msys2@v2
-        if: ${{ runner.os == 'Windows' }}
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            git
-
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
 
       - name: Restore Gradle cache
         id: cache-gradle
@@ -87,11 +92,6 @@ jobs:
         run: |
           VERSION=${VERSION:=${{ github.event.inputs.version }}}
           echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
-
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
 
       - name: Gradle Assemble Publications
         run: ./gradlew publishToMavenLocal
@@ -156,14 +156,13 @@ jobs:
             shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
     steps:
-      - name: Resolve Version
-        if: ${{ matrix.repository.enabled == true }}
-        run: |
-          VERSION=${VERSION:=${{ github.event.inputs.version }}}
-          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
-
-      - uses: actions/checkout@v2
-        if: ${{ matrix.repository.enabled == true }}
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
 
       - name: Restore libmongoc cache
         if: ${{ matrix.repository.enabled == true }}
@@ -174,17 +173,18 @@ jobs:
             scripts/build
           key: ${{ runner.os }}-libmongoc-${{ hashFiles('${{ matrix.os.libmongocScript }}', 'scripts/build/**') }}
 
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            git
+      - uses: actions/checkout@v2
+        if: ${{ matrix.repository.enabled == true }}
 
       - name: Setup libmongoc
         if: ${{ matrix.repository.enabled == true }}
         run: ${{ matrix.os.libmongocScript }}
+
+      - uses: actions/setup-java@v2
+        if: ${{ matrix.repository.enabled == true }}
+        with:
+          distribution: 'adopt'
+          java-version: 11
 
       - name: Restore Gradle cache
         if: ${{ matrix.repository.enabled == true }}
@@ -204,11 +204,11 @@ jobs:
         with:
           name: publications-${{ matrix.os.runner }}
 
-      - uses: actions/setup-java@v2
+      - name: Resolve Version
         if: ${{ matrix.repository.enabled == true }}
-        with:
-          distribution: 'adopt'
-          java-version: 11
+        run: |
+          VERSION=${VERSION:=${{ github.event.inputs.version }}}
+          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
 
       - name: Gradle Publish to ${{ matrix.repository.name }}
         if: ${{ matrix.repository.enabled == true }}
@@ -219,14 +219,14 @@ jobs:
     needs: [ build ]
     if: ${{ github.event.inputs.skipPages != 'y' }}
     steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: dokka
+
       - name: Resolve Version
         run: |
           VERSION=${VERSION:=${{ github.event.inputs.version }}}
           echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: dokka
 
       - name: Build Dokka Pages
         run: |

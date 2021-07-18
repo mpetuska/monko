@@ -34,6 +34,14 @@ jobs:
             shell: msys2 {0}
             libmongocScript: ./scripts/setupWindows.sh
     steps:
+      - uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+
       - uses: actions/checkout@v2
 
       - name: Restore libmongoc cache
@@ -44,16 +52,13 @@ jobs:
             scripts/build
           key: ${{ runner.os }}-libmongoc-${{ hashFiles('${{ matrix.os.libmongocScript }}', 'scripts/build/**') }}
 
-      - uses: msys2/setup-msys2@v2
-        if: ${{ runner.os == 'Windows' }}
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            git
-
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
 
       - name: Restore Gradle cache
         id: cache-gradle
@@ -66,11 +71,6 @@ jobs:
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
 
       - name: Gradle Compile
         run: ./gradlew compile assemble
