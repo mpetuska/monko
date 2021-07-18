@@ -14,9 +14,4 @@ jobs:
   check:
     runs-on: windows-latest
     steps:
-      - run: ls -a 'C:\msys64'
-      - run: ls -a 'C:\msys64\mingw64'
-      - run: ls -a 'C:\msys64\mingw64\x86_64-w64-mingw32'
-      - run: ls -a 'C:\msys64\mingw64\bin'
-      - run: Test-NetConnection localhost -p 27017
-        shell: powershell
+      - run: pacman -Syu
