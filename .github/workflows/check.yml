@@ -25,14 +25,14 @@ jobs:
       matrix:
         os:
           - runner: macos-latest
+            shell: bash
             libmongocScript: ./scripts/setupOSX.sh
-            shell: bash
           - runner: ubuntu-latest
-            libmongocScript: ./scripts/setupUbuntu.sh
             shell: bash
+            libmongocScript: ./scripts/setupUbuntu.sh
           - runner: windows-latest
-            libmongocScript: ./scripts/setupWindows.sh
             shell: msys2 {0}
+            libmongocScript: ./scripts/setupWindows.sh
     steps:
       - uses: actions/checkout@v2
 
@@ -63,11 +63,11 @@ jobs:
           distribution: 'adopt'
           java-version: 11
 
-      - name: Gradle Check
-        run: ./gradlew check
-
       - name: Gradle Compile
         run: ./gradlew compile assemble
+
+      - name: Gradle Check
+        run: ./gradlew check
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}

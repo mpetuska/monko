@@ -33,15 +33,21 @@ jobs:
   build:
     name: Build on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
     strategy:
       fail-fast: false
       matrix:
         os:
           - runner: macos-latest
+            shell: bash
             libmongocScript: ./scripts/setupOSX.sh
           - runner: windows-latest
+            shell: msys2 {0}
             libmongocScript: ./scripts/setupWindows.sh
           - runner: ubuntu-latest
+            shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - name: Resolve Version
@@ -64,19 +70,25 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
 
+      - uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+
+      - name: Setup libmongoc
+        run: ${{ matrix.os.libmongocScript }}
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
 
-      - name: Setup libmongoc
-        run: ${{ matrix.os.libmongocScript }}
+      - name: Gradle Assemble Publications
+        run: ./gradlew publishToMavenLocal
 
       - name: Gradle Check
         run: ./gradlew check
-
-      - name: Gradle Assemble Publications
-        run: ./gradlew publishToMavenLocal
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -102,6 +114,9 @@ jobs:
     name: Release to ${{ matrix.repository.name }} on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
     needs: [ build ]
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
     env:
       GH_USERNAME: ${{ github.actor }}
       GH_PASSWORD: ${{ github.token }}
@@ -123,10 +138,13 @@ jobs:
             enabled: ${{ github.event.inputs.skipMavenCentral != 'y' }}
         os:
           - runner: macos-latest
+            shell: bash
             libmongocScript: ./scripts/setupOSX.sh
           - runner: windows-latest
+            shell: msys2 {0}
             libmongocScript: ./scripts/setupMingw.sh
           - runner: ubuntu-latest
+            shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - name: Resolve Version
@@ -157,15 +175,21 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
 
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+
+      - name: Setup libmongoc
+        if: ${{ matrix.repository.enabled == true }}
+        run: ${{ matrix.os.libmongocScript }}
+
       - uses: actions/setup-java@v2
         if: ${{ matrix.repository.enabled == true }}
         with:
           distribution: 'adopt'
           java-version: 11
-
-      - name: Setup libmongoc
-        if: ${{ matrix.repository.enabled == true }}
-        run: ${{ matrix.os.libmongocScript }}
 
       - name: Gradle Publish to ${{ matrix.repository.name }}
         if: ${{ matrix.repository.enabled == true }}
