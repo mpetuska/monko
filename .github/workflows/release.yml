@@ -50,25 +50,15 @@ jobs:
             shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
     steps:
-      - name: Resolve Version
-        run: |
-          VERSION=${VERSION:=${{ github.event.inputs.version }}}
-          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
-
       - uses: actions/checkout@v2
 
-      - name: Restore Gradle cache
-        id: cache
+      - name: Restore libmongoc cache
+        id: cache-libmongoc
         uses: actions/cache@v2.1.6
         with:
           path: |
             scripts/build
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/yarn
-            ~/.gradle/nodejs
-            ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('${{ matrix.os.libmongocScript }}', 'scripts/build/**') }}
 
       - uses: msys2/setup-msys2@v2
         if: ${{ runner.os == 'Windows' }}
@@ -80,6 +70,23 @@ jobs:
 
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}
+
+      - name: Restore Gradle cache
+        id: cache-gradle
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/yarn
+            ~/.gradle/nodejs
+            ~/.konan
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Resolve Version
+        run: |
+          VERSION=${VERSION:=${{ github.event.inputs.version }}}
+          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
 
       - uses: actions/setup-java@v2
         with:
@@ -102,11 +109,11 @@ jobs:
             **/build/reports
 
       - name: Gradle Assemble Dokka
-        if: ${{ matrix.os.runner == 'ubuntu-latest' }}
+        if: ${{ runner.os == 'Linux' }}
         run: ./gradlew dokkaHtmlMultiModule -Pversion=${VERSION//v}
 
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os.runner == 'ubuntu-latest' }}
+        if: ${{ runner.os == 'Linux' }}
         with:
           name: dokka
           path: |
@@ -158,24 +165,14 @@ jobs:
       - uses: actions/checkout@v2
         if: ${{ matrix.repository.enabled == true }}
 
-      - uses: actions/download-artifact@v2
+      - name: Restore libmongoc cache
         if: ${{ matrix.repository.enabled == true }}
-        with:
-          name: publications-${{ matrix.os.runner }}
-
-      - name: Restore Gradle cache
-        if: ${{ matrix.repository.enabled == true }}
-        id: cache
+        id: cache-libmongoc
         uses: actions/cache@v2.1.6
         with:
           path: |
             scripts/build
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/yarn
-            ~/.gradle/nodejs
-            ~/.konan
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '${{ martix.os.libmongocScript }}') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('${{ matrix.os.libmongocScript }}', 'scripts/build/**') }}
 
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
@@ -188,6 +185,24 @@ jobs:
       - name: Setup libmongoc
         if: ${{ matrix.repository.enabled == true }}
         run: ${{ matrix.os.libmongocScript }}
+
+      - name: Restore Gradle cache
+        if: ${{ matrix.repository.enabled == true }}
+        id: cache-gradle
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/yarn
+            ~/.gradle/nodejs
+            ~/.konan
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - uses: actions/download-artifact@v2
+        if: ${{ matrix.repository.enabled == true }}
+        with:
+          name: publications-${{ matrix.os.runner }}
 
       - uses: actions/setup-java@v2
         if: ${{ matrix.repository.enabled == true }}
