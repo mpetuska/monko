@@ -75,6 +75,8 @@ jobs:
         with:
           msystem: MINGW64
           update: true
+          install: >-
+            git
 
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}
@@ -180,6 +182,8 @@ jobs:
         with:
           msystem: MINGW64
           update: true
+          install: >-
+            git
 
       - name: Setup libmongoc
         if: ${{ matrix.repository.enabled == true }}
