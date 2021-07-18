@@ -53,12 +53,12 @@ tasks {
   }
   withType<CInteropProcess> {
     onlyIf {
-      !CI || konanTarget == HostManager.host
+      konanTarget == HostManager.host
     }
   }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      !CI || compilation.konanTarget == HostManager.host
+      compilation.konanTarget == HostManager.host
     }
   }
 }
