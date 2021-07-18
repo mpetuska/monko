@@ -13,8 +13,17 @@ env:
 jobs:
   check:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
       - run: echo bash
         shell: bash
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
       - run: echo WORKS!!!; pacman --noconfirm -Syu
         shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -here -defterm --norc -noprofile -e -o pipefail {0}
