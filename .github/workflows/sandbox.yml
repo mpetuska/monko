@@ -17,4 +17,4 @@ jobs:
       - run: echo bash
         shell: bash
       - run: pacman --noconfirm -Syu
-        shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -defterm /usr/bin/bash -noprofile --norc -e -o pipefail' {0}
+        shell: C:\msys64\msys2_shell.cmd -use-full-path -mingw64 -no-start -defterm --norc -noprofile -e -o pipefail {0}
