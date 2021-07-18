@@ -38,9 +38,8 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         with:
           msystem: MINGW64
+          path-type: inherit
           update: true
-          install: >-
-            git
 
       - uses: actions/checkout@v2
 
