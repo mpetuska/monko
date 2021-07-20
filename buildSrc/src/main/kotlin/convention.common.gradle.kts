@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinTest
 
@@ -9,9 +10,6 @@ plugins {
 repositories {
   mavenCentral()
   google()
-  if (project.properties["project.useSnapshotRepositories"] == "true") {
-    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-  }
 }
 
 idea {
@@ -27,6 +25,12 @@ ktlint {
 }
 
 tasks {
+  tasks.withType(AbstractTestTask::class).configureEach {
+    testLogging {
+      showExceptions = true
+      exceptionFormat = TestExceptionFormat.FULL
+    }
+  }
   withType<Test> {
     useJUnitPlatform()
   }
