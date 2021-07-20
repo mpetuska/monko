@@ -10,7 +10,7 @@ on:
         description: Command to run
         required: true
       runner:
-        description: Runner to use
+        description: Runner to use [ubuntu-latest, macos-latest, windows-latest]
         required: true
         default: "windows-latest"
 
@@ -20,8 +20,8 @@ env:
 
 jobs:
   build:
-    name: Build on ${{ github.event.inputs.runner }}
-    runs-on: ${{ github.event.inputs.runner }}
+    name: Build on ${{ matrix.os.runner }}
+    runs-on: ${{ matrix.os.runner }}
     defaults:
       run:
         shell: ${{ matrix.os.shell }}
