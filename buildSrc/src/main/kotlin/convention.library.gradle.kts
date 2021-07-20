@@ -20,7 +20,7 @@ kotlin {
   macosX64()
   linuxX64()
 //  TODO check back in 1.5.30. Currently commonizer breaks on mingw
-//  mingwX64()
+  mingwX64()
 
   sourceSets {
     val commonMain by getting {

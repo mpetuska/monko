@@ -42,13 +42,10 @@ jobs:
         os:
           - runner: macos-latest
             shell: bash
-            libmongocScript: ./scripts/setupOSX.sh
           - runner: windows-latest
             shell: msys2 {0}
-            libmongocScript: ./scripts/setupWindows.sh
           - runner: ubuntu-latest
             shell: bash
-            libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - uses: msys2/setup-msys2@v2
         if: ${{ runner.os == 'Windows' }}
@@ -72,10 +69,10 @@ jobs:
         with:
           path: |
             scripts/build
-          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/.build.sh', './scripts/build/**') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
 
       - name: Setup libmongoc
-        run: ${{ matrix.os.libmongocScript }}
+        run: ./scripts/setup.sh
 
       - uses: actions/setup-java@v2
         with:
@@ -154,13 +151,10 @@ jobs:
         os:
           - runner: macos-latest
             shell: bash
-            libmongocScript: ./scripts/setupOSX.sh
           - runner: windows-latest
             shell: msys2 {0}
-            libmongocScript: ./scripts/setupWindows.sh
           - runner: ubuntu-latest
             shell: bash
-            libmongocScript: ./scripts/setupUbuntu.sh
     steps:
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
@@ -183,14 +177,14 @@ jobs:
         with:
           path: |
             scripts/build
-          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/.build.sh', './scripts/build/**') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
 
       - uses: actions/checkout@v2
         if: ${{ matrix.repository.enabled == true }}
 
       - name: Setup libmongoc
         if: ${{ matrix.repository.enabled == true }}
-        run: ${{ matrix.os.libmongocScript }}
+        run: ./scripts/setup.sh
 
       - uses: actions/setup-java@v2
         if: ${{ matrix.repository.enabled == true }}

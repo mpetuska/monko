@@ -1,28 +1,83 @@
 name: Sandbox
 defaults:
   run:
-    shell: msys2bash
+    shell: bash
 
 on:
   workflow_dispatch:
+    inputs:
+      command:
+        description: Command to run
+        required: true
+      runner:
+        description: Runner to use
+        required: true
+        default: "windows-latest"
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   MONGO_URL: ${{ secrets.MONGO_URL }}
 
 jobs:
-  check:
-    runs-on: windows-latest
+  build:
+    name: Build on ${{ github.event.inputs.runner }}
+    runs-on: ${{ github.event.inputs.runner }}
     defaults:
       run:
-        shell: msys2 {0}
+        shell: ${{ matrix.os.shell }}
     steps:
-      - run: echo bash
-        shell: bash
       - uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
         with:
           msystem: MINGW64
           update: true
+          path-type: inherit
           install: >-
-            base-devel
-      - run: echo WORKS!!!; pacman --noconfirm -Syu
+            tar
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-extra-cmake-modules
+            mingw64/mingw-w64-x86_64-cyrus-sasl
+
+      - uses: actions/checkout@v2
+
+      - name: Restore libmongoc cache
+        id: cache-libmongoc
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
+            scripts/build
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
+
+      - name: Setup libmongoc
+        run: ./scripts/setup.sh
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
+
+      - name: Restore Gradle cache
+        id: cache-gradle
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/yarn
+            ~/.gradle/nodejs
+            ~/.konan
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Run Command
+        run: ${{ github.event.inputs.command }}
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: publications-${{ matrix.os.runner }}
+          path: |
+            **/build/publications
+            **/build/libs
+            **/build/reports
