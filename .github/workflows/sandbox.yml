@@ -32,7 +32,7 @@ jobs:
           - runner: macos-latest
             shell: bash
           - runner: windows-latest
-            shell: '"D:\a\_temp\msys64\ming64.exe" -leo pipefail {0}'
+            shell: D:\\a\\_temp\\msys64\\ming64.exe -leo pipefail {0}
           - runner: ubuntu-latest
             shell: bash
     steps:
@@ -49,6 +49,9 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-extra-cmake-modules
             mingw64/mingw-w64-x86_64-cyrus-sasl
+
+      - name: Env
+        run: printenv
 
       - uses: actions/checkout@v2
         if: ${{ github.event.inputs.runner == matrix.os.runner }}
