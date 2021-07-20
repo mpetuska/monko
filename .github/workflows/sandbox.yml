@@ -25,6 +25,7 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.os.shell }}
+#        shell: C:\msys64\ming64.exe -leo pipefail {0}
     strategy:
       fail-fast: false
       matrix:
