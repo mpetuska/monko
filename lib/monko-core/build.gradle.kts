@@ -22,8 +22,7 @@ kotlin {
     }
     named("jsMain") {
       dependencies {
-        api(npm("mongodb", "^3"))
-        api(devNpm("@types/mongodb", "^3"))
+        api(npm("mongodb", "^4.0.0"))
       }
     }
   }

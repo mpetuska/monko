@@ -72,7 +72,7 @@ jobs:
         with:
           path: |
             scripts/build
-          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/build/**') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/.build.sh', './scripts/build/**') }}
 
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}
@@ -157,7 +157,7 @@ jobs:
             libmongocScript: ./scripts/setupOSX.sh
           - runner: windows-latest
             shell: msys2 {0}
-            libmongocScript: ./scripts/setupMingw.sh
+            libmongocScript: ./scripts/setupWindows.sh
           - runner: ubuntu-latest
             shell: bash
             libmongocScript: ./scripts/setupUbuntu.sh
@@ -183,7 +183,7 @@ jobs:
         with:
           path: |
             scripts/build
-          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/build/**') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/.build.sh', './scripts/build/**') }}
 
       - uses: actions/checkout@v2
         if: ${{ matrix.repository.enabled == true }}

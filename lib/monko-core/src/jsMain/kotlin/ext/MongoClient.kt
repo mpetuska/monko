@@ -9,4 +9,15 @@ public actual external interface MongoClient {
 }
 
 @JsModule("mongodb")
-public external fun connect(url: String, options: dynamic = definedExternally): Promise<MongoClient>
+@JsName("MongoClient")
+public external object MongodbModule {
+  public class MongoClient : dev.petuska.monko.core.ext.MongoClient {
+    public companion object {
+      public fun connect(url: String, options: dynamic = definedExternally): Promise<MongoClient>
+    }
+
+    override fun db(name: String, options: dynamic): MongoDatabase
+
+    override fun close(): dynamic
+  }
+}

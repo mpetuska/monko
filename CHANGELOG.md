@@ -1,7 +1,7 @@
 # v0.0.1
 ## Versions
 * [mongo-java-driver@4.3.0](https://github.com/mongodb/mongo-java-driver/tree/r4.3.0)
-* [node-mongodb-native@3.6.10](https://github.com/mongodb/node-mongodb-native/tree/v3.6.10)
+* [node-mongodb-native@4.0.0](https://github.com/mongodb/node-mongodb-native/tree/v4.0.0)
 * [mongo-c-driver@1.8.0](https://github.com/mongodb/mongo-c-driver/tree/1.18.0)
 
 ## Changes

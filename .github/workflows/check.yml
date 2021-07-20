@@ -56,7 +56,7 @@ jobs:
         with:
           path: |
             scripts/build
-          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/build/**') }}
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles(matrix.os.libmongocScript, './scripts/.build.sh', './scripts/build/**') }}
 
       - name: Setup libmongoc
         run: ${{ matrix.os.libmongocScript }}

@@ -19,7 +19,7 @@ kotlin {
   }
   macosX64()
   linuxX64()
-  // TODO check back in 1.5.30. Currently commonizer breaks on mingw
+//  TODO check back in 1.5.30. Currently commonizer breaks on mingw
 //  mingwX64()
 
   sourceSets {
