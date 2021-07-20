@@ -79,7 +79,7 @@ jobs:
         run: ./gradlew compile assemble
 
       - name: Gradle Check
-        run: ./gradlew check
+        run: ./gradlew check --scan
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
