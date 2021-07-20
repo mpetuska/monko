@@ -25,7 +25,6 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.os.shell }}
-#        shell: C:\msys64\ming64.exe -leo pipefail {0}
     strategy:
       fail-fast: false
       matrix:
@@ -33,7 +32,7 @@ jobs:
           - runner: macos-latest
             shell: bash
           - runner: windows-latest
-            shell: msys2 {0}
+            shell: D:\a\_temp\msys64\ming64.exe -leo pipefail {0}
           - runner: ubuntu-latest
             shell: bash
     steps:
