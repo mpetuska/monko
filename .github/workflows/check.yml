@@ -84,6 +84,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: reports-${{ matrix.os.runner }}
+          name: reports-${{ runner.os }}
           path: |
             **/build/reports

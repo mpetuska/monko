@@ -105,7 +105,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: publications-${{ matrix.os.runner }}
+          name: publications-${{ runner.os }}
           path: |
             **/build/publications
             **/build/libs
@@ -208,7 +208,7 @@ jobs:
       - uses: actions/download-artifact@v2
         if: ${{ matrix.repository.enabled == true }}
         with:
-          name: publications-${{ matrix.os.runner }}
+          name: publications-${{ runner.os }}
 
       - name: Resolve Version
         if: ${{ matrix.repository.enabled == true }}

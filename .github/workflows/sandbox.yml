@@ -25,9 +25,19 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.os.shell }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - runner: macos-latest
+            shell: bash
+          - runner: windows-latest
+            shell: msys2 {0}
+          - runner: ubuntu-latest
+            shell: bash
     steps:
       - uses: msys2/setup-msys2@v2
-        if: ${{ runner.os == 'Windows' }}
+        if: ${{ github.event.inputs.runner == matrix.os.runner && runner.os == 'Windows' }}
         with:
           msystem: MINGW64
           update: true
@@ -41,8 +51,10 @@ jobs:
             mingw64/mingw-w64-x86_64-cyrus-sasl
 
       - uses: actions/checkout@v2
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
 
       - name: Restore libmongoc cache
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
         id: cache-libmongoc
         uses: actions/cache@v2.1.6
         with:
@@ -51,14 +63,17 @@ jobs:
           key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
 
       - name: Setup libmongoc
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
         run: ./scripts/setup.sh
 
       - uses: actions/setup-java@v2
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
         with:
           distribution: 'adopt'
           java-version: 11
 
       - name: Restore Gradle cache
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
         id: cache-gradle
         uses: actions/cache@v2.1.6
         with:
@@ -71,12 +86,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
       - name: Run Command
+        if: ${{ github.event.inputs.runner == matrix.os.runner }}
         run: ${{ github.event.inputs.command }}
 
       - uses: actions/upload-artifact@v2
-        if: ${{ always() }}
+        if: ${{ github.event.inputs.runner == matrix.os.runner && always() }}
         with:
-          name: publications-${{ matrix.os.runner }}
+          name: publications-${{ runner.os }}
           path: |
             **/build/publications
             **/build/libs
