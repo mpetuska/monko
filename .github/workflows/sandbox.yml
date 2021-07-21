@@ -91,11 +91,11 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      - name: [DEBUG] Environment
+      - name: "[DEBUG] Environment"
         if: ${{ startsWith(matrix.os.runner, github.event.inputs.runner) }}
         run: printenv
 
-      - name: [DEBUG] Path
+      - name: "[DEBUG] Path"
         if: ${{ startsWith(matrix.os.runner, github.event.inputs.runner) }}
         run: echo $PATH
 
