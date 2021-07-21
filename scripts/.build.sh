@@ -16,10 +16,7 @@ mkdir -p cmake-build
 cd cmake-build || exit 1
 
 echo "[main] Configuring CMAKE in: $PWD"
-cmake .. \
-  "-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF" \
-  "-DCMAKE_OSX_ARCHITECTURES=x86_64;" \
-  "-DCMAKE_BUILD_TYPE=Debug" || exit 1
+cmake .. ${@} || exit 1
 
 echo "[main] Building with CMAKE"
 cmake --build . || exit 1
