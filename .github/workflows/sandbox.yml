@@ -32,7 +32,7 @@ jobs:
           - runner: macos-latest
             shell: bash
           - runner: windows-latest
-            shell: "${{ env.RUNNER_TEMP }}/msys64/ming64.exe" -leo pipefail {0}
+            shell: D:\a\_temp\msys\ming64.exe -leo pipefail {0}
           - runner: ubuntu-latest
             shell: bash
     steps:
