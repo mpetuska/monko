@@ -43,7 +43,7 @@ jobs:
             shell: bash
     steps:
       - uses: msys2/setup-msys2@v2
-        if: ${{ github.event.inputs.runAtEnd == 'true' && startsWith(matrix.os.runner, github.event.inputs.runner) && runner.os == 'Windows' }}
+        if: ${{ startsWith(matrix.os.runner, github.event.inputs.runner) && runner.os == 'Windows' }}
         with:
           msystem: MINGW64
           update: true
