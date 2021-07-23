@@ -27,7 +27,7 @@ on:
 env:
   VERSION: ${{ github.event.release.tag_name }}
   MONGO_URL: ${{ secrets.MONGO_URL }}
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.scan=true"
 
 jobs:
   build:
@@ -100,7 +100,7 @@ jobs:
         run: ./gradlew publishToMavenLocal
 
       - name: Gradle Check
-        run: ./gradlew check --scan
+        run: ./gradlew check
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
