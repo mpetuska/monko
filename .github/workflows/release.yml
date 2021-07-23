@@ -27,7 +27,7 @@ on:
 env:
   VERSION: ${{ github.event.release.tag_name }}
   MONGO_URL: ${{ secrets.MONGO_URL }}
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.scan=true"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 jobs:
   build:
@@ -90,6 +90,7 @@ jobs:
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - name: Resolve Version
         run: |
@@ -97,10 +98,10 @@ jobs:
           echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
 
       - name: Gradle Assemble Publications
-        run: ./gradlew publishToMavenLocal
+        run: ./gradlew publishToMavenLocal --scan
 
       - name: Gradle Check
-        run: ./gradlew check
+        run: ./gradlew check --scan
 
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
@@ -113,7 +114,7 @@ jobs:
 
       - name: Gradle Assemble Dokka
         if: ${{ runner.os == 'Linux' }}
-        run: ./gradlew dokkaHtmlMultiModule -Pversion=${VERSION//v}
+        run: ./gradlew dokkaHtmlMultiModule -Pversion=${VERSION//v} --scan
 
       - uses: actions/upload-artifact@v2
         if: ${{ runner.os == 'Linux' }}
@@ -146,7 +147,7 @@ jobs:
           - name: Maven Central
             # Requires to manually release a new version on https://s01.oss.sonatype.org/#stagingRepositories
             # If you're brave, you could change it to `publishToSonatype closeAndReleaseSonatypeStagingRepository` to fully automate the release
-            tasks: publishToSonatype closeSonatypeStagingRepository
+            tasks: publishToSonatype closeSonatypeStagingRepository --no-parallel
             enabled: ${{ github.event.inputs.skipMavenCentral != 'y' }}
         os:
           - runner: macos-latest
@@ -204,6 +205,7 @@ jobs:
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - uses: actions/download-artifact@v2
         if: ${{ matrix.repository.enabled == true }}
@@ -218,7 +220,7 @@ jobs:
 
       - name: Gradle Publish to ${{ matrix.repository.name }}
         if: ${{ matrix.repository.enabled == true }}
-        run: ./gradlew ${{ matrix.repository.tasks }} --info -Pversion=${VERSION//v}
+        run: ./gradlew ${{ matrix.repository.tasks }} --info -Pversion=${VERSION//v} --scan
 
   release-Dokka:
     runs-on: ubuntu-latest
