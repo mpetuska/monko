@@ -3,7 +3,8 @@ import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
-  id("convention.library")
+  kotlin("multiplatform")
+  id("plugin.common")
   id("org.jetbrains.dokka")
   `maven-publish`
   signing

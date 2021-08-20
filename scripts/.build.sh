@@ -16,7 +16,7 @@ mkdir -p cmake-build
 cd cmake-build || exit 1
 
 echo "[main] Configuring CMAKE in: $PWD"
-cmake .. ${@} || exit 1
+cmake .. "${@}" || exit 1
 
 echo "[main] Building with CMAKE"
 cmake --build . || exit 1

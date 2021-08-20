@@ -1,7 +1,9 @@
+import de.fayard.refreshVersions.core.versionFor
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
-  id("convention.publishing")
+  id("plugin.library")
+  id("plugin.publishing")
 }
 
 kotlin {
@@ -22,7 +24,7 @@ kotlin {
     }
     named("jsMain") {
       dependencies {
-        api(npm("mongodb", "^4.0.0"))
+        api(npm("mongodb", versionFor("version.npm.mongodb")))
       }
     }
   }

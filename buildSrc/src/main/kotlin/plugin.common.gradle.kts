@@ -1,3 +1,4 @@
+import de.fayard.refreshVersions.core.versionFor
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinTest
@@ -20,7 +21,7 @@ idea {
 }
 
 ktlint {
-  version to "${project.properties["ktlint.version"]}"
+  version to versionFor("version.ktlint")
   additionalEditorconfigFile to rootDir.resolve(".editorconfig")
 }
 

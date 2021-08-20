@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 plugins {
   kotlin("multiplatform")
   kotlin("plugin.serialization")
-  id("convention.common")
+  id("plugin.common")
 }
 
 kotlin {
@@ -19,7 +19,6 @@ kotlin {
   }
   macosX64()
   linuxX64()
-//  TODO check back in 1.5.30. Currently commonizer breaks on mingw
   mingwX64()
 
   sourceSets {
@@ -31,6 +30,7 @@ kotlin {
     val commonTest by getting {
       dependencies {
         implementation(project(":test"))
+        implementation(kotlin("test-annotations-common"))
       }
     }
     val nativeMain by creating {
@@ -47,9 +47,11 @@ kotlin {
 }
 
 tasks {
-  withType<KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
+  project.properties["org.gradle.project.targetCompatibility"]?.toString()?.let {
+    withType<KotlinCompile> {
+      kotlinOptions {
+        jvmTarget = it
+      }
     }
   }
   withType<CInteropProcess> {

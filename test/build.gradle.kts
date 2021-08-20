@@ -1,5 +1,5 @@
 plugins {
-  id("convention.library")
+  id("plugin.library")
 }
 
 description = "Local test utilities"
