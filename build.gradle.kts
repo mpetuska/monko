@@ -1,6 +1,8 @@
 plugins {
-  id("convention.publishing-nexus")
   id("com.github.jakemarsden.git-hooks")
+  id("plugin.library")
+  id("plugin.publishing")
+  id("plugin.publishing-nexus")
   id("com.dorongold.task-tree")
 }
 

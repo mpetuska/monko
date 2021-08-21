@@ -1,4 +1,4 @@
-package dev.petuska.monko.core.test
+package dev.petuska.monko.core.config
 
 import local.test.Environment
 import local.test.getValue

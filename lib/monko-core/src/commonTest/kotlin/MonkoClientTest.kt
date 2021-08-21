@@ -1,6 +1,6 @@
 package dev.petuska.monko.core
 
-import dev.petuska.monko.core.test.MONGO_URL
+import dev.petuska.monko.core.config.MONGO_URL
 import local.test.BlockingTest
 import kotlin.test.Test
 

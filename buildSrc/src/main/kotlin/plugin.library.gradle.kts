@@ -3,13 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
-import util.nativeTargetGroup
 
 plugins {
   kotlin("multiplatform")
   kotlin("plugin.serialization")
-  id("convention.common")
+  id("plugin.common")
 }
 
 kotlin {
@@ -19,13 +17,9 @@ kotlin {
     useCommonJs()
     nodejs()
   }
-
-  nativeTargetGroup(
-    "desktop",
-    macosX64(),
-    linuxX64(),
-    mingwX64(),
-  )
+  macosX64()
+  linuxX64()
+  mingwX64()
 
   sourceSets {
     val commonMain by getting {
@@ -36,6 +30,7 @@ kotlin {
     val commonTest by getting {
       dependencies {
         implementation(project(":test"))
+        implementation(kotlin("test-annotations-common"))
       }
     }
     val nativeMain by creating {
@@ -52,20 +47,21 @@ kotlin {
 }
 
 tasks {
-  withType<KotlinCompile> {
-    kotlinOptions {
-      jvmTarget = project.properties["org.gradle.project.targetCompatibility"]!!.toString()
+  project.properties["org.gradle.project.targetCompatibility"]?.toString()?.let {
+    withType<KotlinCompile> {
+      kotlinOptions {
+        jvmTarget = it
+      }
     }
   }
-  withType<CInteropProcess>{
+  withType<CInteropProcess> {
     onlyIf {
       konanTarget == HostManager.host
     }
   }
   withType<AbstractKotlinNativeCompile<*, *>> {
     onlyIf {
-      val konanTarget = kotlin.targets[target] as? KonanTarget
-      konanTarget == HostManager.host
+      compilation.konanTarget == HostManager.host
     }
   }
 }

@@ -1,9 +1,13 @@
+import de.fayard.refreshVersions.core.versionFor
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
-  id("convention.publishing")
+  id("plugin.library")
+  id("plugin.publishing")
 }
 
 kotlin {
-  targets.filterIsInstance<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>()
+  targets.filterIsInstance<KotlinNativeTarget>()
     .forEach { target ->
       target.compilations["main"].apply {
         cinterops {
@@ -14,14 +18,13 @@ kotlin {
   sourceSets {
     named("jvmMain") {
       dependencies {
-        api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:_")
         api("org.mongodb:mongodb-driver-reactivestreams:_")
+        api("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:_")
       }
     }
     named("jsMain") {
       dependencies {
-        api(npm("mongodb", "^3"))
-        api(devNpm("@types/mongodb", "^3"))
+        api(npm("mongodb", versionFor("version.npm.mongodb")))
       }
     }
   }

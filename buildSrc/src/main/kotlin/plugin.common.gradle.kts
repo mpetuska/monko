@@ -1,3 +1,5 @@
+import de.fayard.refreshVersions.core.versionFor
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinTest
 
@@ -9,9 +11,6 @@ plugins {
 repositories {
   mavenCentral()
   google()
-  if (project.properties["project.useSnapshotRepositories"] == "true") {
-    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-  }
 }
 
 idea {
@@ -21,7 +20,18 @@ idea {
   }
 }
 
+ktlint {
+  version to versionFor("version.ktlint")
+  additionalEditorconfigFile to rootDir.resolve(".editorconfig")
+}
+
 tasks {
+  tasks.withType(AbstractTestTask::class).configureEach {
+    testLogging {
+      showExceptions = true
+      exceptionFormat = TestExceptionFormat.FULL
+    }
+  }
   withType<Test> {
     useJUnitPlatform()
   }

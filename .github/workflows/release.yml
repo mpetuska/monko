@@ -1,4 +1,7 @@
 name: Release
+defaults:
+  run:
+    shell: bash
 
 on:
   workflow_dispatch:
@@ -23,80 +26,110 @@ on:
 
 env:
   VERSION: ${{ github.event.release.tag_name }}
+  MONGO_URL: ${{ secrets.MONGO_URL }}
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 jobs:
   build:
+    name: Build on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
     strategy:
       fail-fast: false
       matrix:
         os:
           - runner: macos-latest
-            libmongocScript: ./scripts/setupOSX.sh
             shell: bash
           - runner: windows-latest
-            libmongocScript: ./scripts/setupMingw.sh
-            shell: msys2
+            shell: msys2 {0}
           - runner: ubuntu-latest
-            libmongocScript: ./scripts/setupUbuntu.sh
             shell: bash
     steps:
-      - name: Resolve Version
-        shell: bash
-        run: |
-          VERSION=${VERSION:=${{ github.event.inputs.version }}}
-          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
+      - uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          msystem: MINGW64
+          update: true
+          path-type: inherit
+          install: >-
+            tar
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-extra-cmake-modules
+            mingw64/mingw-w64-x86_64-cyrus-sasl
+
       - uses: actions/checkout@v2
-      - name: Restore Gradle cache
-        id: cache
+
+      - name: Restore libmongoc cache
+        id: cache-libmongoc
         uses: actions/cache@v2.1.6
         with:
           path: |
             scripts/build
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
+
+      - name: Setup libmongoc
+        run: ./scripts/setup.sh
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 11
+
+      - name: Restore Gradle cache
+        id: cache-gradle
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 11
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.os.shell == 'msys2' }}
-        with:
-          msystem: MINGW64
-          path-type: inherit
-          update: true
-      - run: ${{ matrix.os.shell }} -c '${{ matrix.os.libmongocScript }}'
-        name: Setup libmongoc
-      - run: ${{ matrix.os.shell }} -c './gradlew publishToMavenLocal'
-        name: Gradle Assemble Publications
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Resolve Version
+        run: |
+          VERSION=${VERSION:=${{ github.event.inputs.version }}}
+          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
+
+      - name: Gradle Assemble Publications
+        run: ./gradlew publishToMavenLocal --scan
+
+      - name: Gradle Check
+        run: ./gradlew check --scan
+
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: publications-${{ matrix.os.runner }}
+          name: publications-${{ runner.os }}
           path: |
             **/build/publications
             **/build/libs
             **/build/reports
-      - run: ${{ matrix.os.shell }} -c './gradlew dokkaHtmlMultiModule -Pversion=${VERSION//v}'
-        if: ${{ matrix.os.runner == 'ubuntu-latest' }}
-        name: Gradle Assemble Dokka
+
+      - name: Gradle Assemble Dokka
+        if: ${{ runner.os == 'Linux' }}
+        run: ./gradlew dokkaHtmlMultiModule -Pversion=${VERSION//v} --scan
+
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os.runner == 'ubuntu-latest' }}
+        if: ${{ runner.os == 'Linux' }}
         with:
           name: dokka
           path: |
             **/build/dokka
 
   release-Artefacts:
+    name: Release to ${{ matrix.repository.name }} on ${{ matrix.os.runner }}
     runs-on: ${{ matrix.os.runner }}
     needs: [ build ]
+    defaults:
+      run:
+        shell: ${{ matrix.os.shell }}
     env:
       GH_USERNAME: ${{ github.actor }}
       GH_PASSWORD: ${{ github.token }}
@@ -110,82 +143,100 @@ jobs:
         repository:
           - name: Github Packages
             tasks: publishAllPublicationsToGitHubRepository
-            enabled: ${{ github.event.inputs.skipGitHub != 'y' && true }}
+            enabled: ${{ github.event.inputs.skipGitHub != 'y' }}
           - name: Maven Central
             # Requires to manually release a new version on https://s01.oss.sonatype.org/#stagingRepositories
             # If you're brave, you could change it to `publishToSonatype closeAndReleaseSonatypeStagingRepository` to fully automate the release
             tasks: publishToSonatype closeSonatypeStagingRepository
-            enabled: ${{ github.event.inputs.skipMavenCentral != 'y' && true }}
+            enabled: ${{ github.event.inputs.skipMavenCentral != 'y' }}
         os:
           - runner: macos-latest
-            libmongocScript: ./scripts/setupOSX.sh
             shell: bash
           - runner: windows-latest
-            libmongocScript: ./scripts/setupMingw.sh
-            shell: msys2
+            shell: msys2 {0}
           - runner: ubuntu-latest
-            libmongocScript: ./scripts/setupUbuntu.sh
             shell: bash
     steps:
-      - name: Resolve Version
-        if: ${{ matrix.repository.enabled == true }}
-        shell: bash
-        run: |
-          VERSION=${VERSION:=${{ github.event.inputs.version }}}
-          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
-      - uses: actions/checkout@v2
-        if: ${{ matrix.repository.enabled == true }}
-      - uses: actions/download-artifact@v2
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.repository.enabled == true && runner.os == 'Windows' }}
         with:
-          name: publications-${{ matrix.os.runner }}
-      - name: Restore Gradle cache
+          msystem: MINGW64
+          update: true
+          path-type: inherit
+          install: >-
+            tar
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-extra-cmake-modules
+            mingw64/mingw-w64-x86_64-cyrus-sasl
+
+      - name: Restore libmongoc cache
         if: ${{ matrix.repository.enabled == true }}
-        id: cache
+        id: cache-libmongoc
         uses: actions/cache@v2.1.6
         with:
           path: |
             scripts/build
+          key: ${{ runner.os }}-libmongoc-${{ hashFiles('./scripts/*') }}
+
+      - uses: actions/checkout@v2
+        if: ${{ matrix.repository.enabled == true }}
+
+      - name: Setup libmongoc
+        if: ${{ matrix.repository.enabled == true }}
+        run: ./scripts/setup.sh
+
+      - uses: actions/setup-java@v2
+        if: ${{ matrix.repository.enabled == true }}
+        with:
+          distribution: 'adopt'
+          java-version: 11
+
+      - name: Restore Gradle cache
+        if: ${{ matrix.repository.enabled == true }}
+        id: cache-gradle
+        uses: actions/cache@v2.1.6
+        with:
+          path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
             ~/.gradle/yarn
             ~/.gradle/nodejs
             ~/.konan
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: actions/setup-java@v2
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - uses: actions/download-artifact@v2
         if: ${{ matrix.repository.enabled == true }}
         with:
-          distribution: 'adopt'
-          java-version: 11
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.repository.enabled == true && matrix.os.shell == 'msys2' }}
-        with:
-          msystem: MINGW64
-          path-type: inherit
-          update: true
-      - run: ${{ matrix.os.shell }} -c '${{ matrix.os.libmongocScript }}'
+          name: publications-${{ runner.os }}
+
+      - name: Resolve Version
         if: ${{ matrix.repository.enabled == true }}
-        name: Setup libmongoc
-      - name: Gradle Publish
+        run: |
+          VERSION=${VERSION:=${{ github.event.inputs.version }}}
+          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
+
+      - name: Gradle Publish to ${{ matrix.repository.name }}
         if: ${{ matrix.repository.enabled == true }}
-        run: ${{ matrix.os.shell }} -c './gradlew ${{ matrix.repository.tasks }} --info -Pversion=${VERSION//v}'
+        run: ./gradlew ${{ matrix.repository.tasks }} --info -Pversion=${VERSION//v} --scan
 
   release-Dokka:
     runs-on: ubuntu-latest
     needs: [ build ]
     if: ${{ github.event.inputs.skipPages != 'y' }}
     steps:
-      - name: Resolve Version
-        shell: bash
-        run: |
-          VERSION=${VERSION:=${{ github.event.inputs.version }}}
-          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
       - uses: actions/download-artifact@v2
         with:
           name: dokka
+
+      - name: Resolve Version
+        run: |
+          VERSION=${VERSION:=${{ github.event.inputs.version }}}
+          echo "VERSION=${VERSION/v}" >> $GITHUB_ENV
+
       - name: Build Dokka Pages
-        shell: bash
         run: |
           REPO_NAME=${{ github.repository }}
           REPO_NAME=${REPO_NAME#${{ github.repository_owner }}/}
@@ -193,6 +244,7 @@ jobs:
           find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec gzip -f -k {} \;
           echo "/${REPO_NAME} /${REPO_NAME}/${REPO_NAME}/index.html 301" > public/_redirects;
           echo "/${REPO_NAME}/index.html /${REPO_NAME}/${REPO_NAME}/index.html 301" >> public/_redirects;
+
       - uses: crazy-max/ghaction-github-pages@v2.5.0
         with:
           target_branch: gh-pages
