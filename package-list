@@ -1,0 +1,8 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:monko-core
+dev.petuska.monko.core
+dev.petuska.monko.core.bson
+dev.petuska.monko.core.ext
+dev.petuska.monko.core.util
