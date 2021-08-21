@@ -1,6 +1,8 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
+import util.buildHost
 
 plugins {
   kotlin("multiplatform")
@@ -23,7 +25,7 @@ tasks {
         "Build-Jdk" to System.getProperty("java.version"),
         "Implementation-Version" to project.version,
         "Created-By" to "${GradleVersion.current()}",
-        "Created-From" to Git.headCommitHash
+        "Created-From" to "${Git.headCommitHash}"
       )
     }
   }
@@ -65,8 +67,8 @@ publishing {
       artifact(tasks["javadocJar"])
       pom {
         name by project.name
-        url by "https://github.com/$ghOwnerId/${project.name}"
-        description by rootProject.description
+        url by "https://github.com/$ghOwnerId/${rootProject.name}"
+        description by project.description
 
         licenses {
           license {
@@ -84,8 +86,8 @@ publishing {
         }
 
         scm {
-          connection by "scm:git:git@github.com:$ghOwnerId/${project.name}.git"
-          url by "https://github.com/$ghOwnerId/${project.name}"
+          connection by "scm:git:git@github.com:$ghOwnerId/${rootProject.name}.git"
+          url by "https://github.com/$ghOwnerId/${rootProject.name}"
           tag by Git.headCommitHash
         }
       }
@@ -94,6 +96,14 @@ publishing {
 }
 
 kotlin {
+  fun Collection<KotlinTarget>.onlyBuildIf(enabled: Spec<in Task>) {
+    forEach {
+      it.compilations.all {
+        compileKotlinTask.onlyIf(enabled)
+      }
+    }
+  }
+
   fun Collection<Named>.onlyPublishIf(enabled: Spec<in Task>) {
     val publications: Collection<String> = map { it.name }
     afterEvaluate {
@@ -123,19 +133,25 @@ kotlin {
   }
 
   val nativeTargets = targets.withType<KotlinNativeTarget>()
-  val windowsHostTargets = nativeTargets.filter { it.konanTarget.family == Family.MINGW }
-  val linuxHostTargets =
-    nativeTargets.filter { it.konanTarget.family == Family.LINUX || it.konanTarget.family == Family.ANDROID }
-  val osxHostTargets = nativeTargets.filter { it.konanTarget.family.isAppleFamily }
-  val mainHostTargets = targets.filter { it !in nativeTargets } + Named { "kotlinMultiplatform" }
+  val windowsHostTargets = nativeTargets.filter { it.konanTarget.buildHost == Family.MINGW }
+  val linuxHostTargets = nativeTargets.filter { it.konanTarget.buildHost == Family.LINUX }
+  val osxHostTargets = nativeTargets.filter { it.konanTarget.buildHost == Family.OSX }
+  val mainHostTargets = targets.filter { it !in nativeTargets }
   logger.info("Linux host targets: $linuxHostTargets")
   logger.info("OSX host targets: $osxHostTargets")
   logger.info("Windows host targets: $windowsHostTargets")
   logger.info("Main host targets: $mainHostTargets")
+
+  linuxHostTargets.onlyBuildIf { !CI || HostManager.hostIsLinux }
   linuxHostTargets.onlyPublishIf { !CI || HostManager.hostIsLinux }
+
+  osxHostTargets.onlyBuildIf { !CI || HostManager.hostIsMac }
   osxHostTargets.onlyPublishIf { !CI || HostManager.hostIsMac }
+
+  windowsHostTargets.onlyBuildIf { !CI || HostManager.hostIsMingw }
   windowsHostTargets.onlyPublishIf { !CI || HostManager.hostIsMingw }
-  mainHostTargets.onlyPublishIf {
-    !CI || HostManager.simpleOsName().equals("${project.properties["project.mainOS"]}", true)
-  }
+
+  val isMainHost = HostManager.simpleOsName().equals("${project.properties["project.mainOS"]}", true)
+  mainHostTargets.onlyBuildIf { !CI || isMainHost }
+  (mainHostTargets + Named { "kotlinMultiplatform" }).onlyPublishIf { !CI || isMainHost }
 }
