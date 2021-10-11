@@ -1,5 +1,6 @@
 package dev.petuska.monko.core
 
+import dev.petuska.monko.core.bson.documentOf
 import dev.petuska.monko.core.config.MONGO_URL
 import dev.petuska.monko.core.ext.Document
 import local.test.BlockingTest
@@ -18,6 +19,8 @@ class MonkoCollectionTest : BlockingTest {
   }
 
   override suspend fun afterEach() {
+    collection.insertOne(documentOf("{}"))
+    collection.drop()
     collection.close()
     database.close()
     client.close()
@@ -25,6 +28,22 @@ class MonkoCollectionTest : BlockingTest {
 
   @Test
   fun countDocuments() = blockingTest {
+    assertEquals(0, collection.countDocuments())
+  }
+
+  @Test
+  fun insertOne() = blockingTest {
+    assertEquals(0, collection.countDocuments())
+    collection.insertOne(documentOf("{}"))
+    assertEquals(1, collection.countDocuments())
+  }
+
+  @Test
+  fun drop() = blockingTest {
+    assertEquals(0, collection.countDocuments())
+    collection.insertOne(documentOf("{}"))
+    assertEquals(1, collection.countDocuments())
+    collection.drop()
     assertEquals(0, collection.countDocuments())
   }
 }

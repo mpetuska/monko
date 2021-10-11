@@ -7,3 +7,4 @@ local.properties
 lint.xml
 externals/
 scripts/mongo-c-driver-*/**
+hs_err_pid*.log

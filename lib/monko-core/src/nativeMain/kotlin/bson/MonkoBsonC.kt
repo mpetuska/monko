@@ -1,5 +1,6 @@
 package dev.petuska.monko.core.bson
 
+import dev.petuska.monko.core.ext.Document
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.reinterpret
@@ -24,6 +25,8 @@ internal class MonkoBsonC(override val c: CPointer<bson_t>) : MonkoBson {
   override fun close() {
     bson_destroy(c)
   }
+
+  override fun toString(): String = toJson()
 }
 
 public actual fun bsonOf(json: String): MonkoBson {
@@ -32,6 +35,8 @@ public actual fun bsonOf(json: String): MonkoBson {
     MonkoBsonC(cBson)
   }
 }
+
+public actual fun MonkoBson.toDocument(): Document = Document(c)
 
 public fun CPointer<bson_t>.extractJsonAndClose(): String = MonkoBsonC(this).run {
   toJson().also { close() }

@@ -1,6 +1,8 @@
 package dev.petuska.monko.core
 
 import dev.petuska.monko.core.ext.MongoClient
+import dev.petuska.monko.core.util.MPPValue
+import dev.petuska.monko.core.util.invoke
 import kotlinx.cinterop.CPointer
 import mongoc.mongoc_cleanup
 import mongoc.mongoc_client_destroy
@@ -11,12 +13,8 @@ import mongoc.mongoc_uri_destroy
 import mongoc.mongoc_uri_new
 import mongoc.mongoc_uri_t
 
-public actual suspend fun MonkoClient(
-  connectionString: String,
-  connectionStringJS: String?,
-  connectionStringJVM: String?,
-  connectionStringNative: String?
-): MonkoClient = MonkoClientC(connectionStringNative ?: connectionString)
+public actual suspend fun MonkoClient(connectionString: MPPValue<String>): MonkoClient =
+  MonkoClientC(connectionString())
 
 public actual suspend fun MonkoClient.Companion.cleanup() {
   mongoc_cleanup()

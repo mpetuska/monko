@@ -4,7 +4,7 @@ services:
   mongodb:
     image: mongo
     ports:
-      - 27017:27017
+      - "27017:27017"
 
   mongo-express:
     depends_on:
@@ -13,4 +13,4 @@ services:
     environment:
       ME_CONFIG_MONGODB_SERVER: mongodb
     ports:
-      - 8081:8081
+      - "8081:8081"

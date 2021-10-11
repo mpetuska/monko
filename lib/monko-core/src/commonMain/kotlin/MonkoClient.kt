@@ -2,6 +2,7 @@ package dev.petuska.monko.core
 
 import dev.petuska.monko.core.ext.MongoClient
 import dev.petuska.monko.core.util.Closeable
+import dev.petuska.monko.core.util.MPPValue
 import dev.petuska.monko.core.util.Proxy
 
 public interface MonkoClient : Proxy<MongoClient>, Closeable {
@@ -12,9 +13,8 @@ public interface MonkoClient : Proxy<MongoClient>, Closeable {
 
 public expect suspend fun MonkoClient.Companion.cleanup()
 
-public expect suspend fun MonkoClient(
-  connectionString: String,
-  connectionStringJS: String? = null,
-  connectionStringJVM: String? = null,
-  connectionStringNative: String? = null,
-): MonkoClient
+public suspend fun MonkoClient(
+  connectionString: String
+): MonkoClient = MonkoClient(MPPValue(connectionString))
+
+public expect suspend fun MonkoClient(connectionString: MPPValue<String>): MonkoClient

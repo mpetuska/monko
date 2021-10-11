@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION=1.18.0
+VERSION=1.19.1
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build"
 mkdir -p "$ROOT" && cd "$ROOT" || exit 1

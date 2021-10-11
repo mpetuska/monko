@@ -13,9 +13,9 @@ interface BlockingTest {
       beforeEach()
       action()
     } catch (e: Throwable) {
-      e.printStackTrace()
-    } finally {
       afterEach()
+      throw e
     }
+    afterEach()
   }
 }

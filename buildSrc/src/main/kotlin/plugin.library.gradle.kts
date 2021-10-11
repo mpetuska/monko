@@ -9,6 +9,7 @@ plugins {
   kotlin("multiplatform")
   kotlin("plugin.serialization")
   id("plugin.common")
+  id("dev.petuska.klip")
 }
 
 kotlin {
@@ -19,9 +20,10 @@ kotlin {
     nodejs()
   }
   macosX64()
+  macosArm64()
   linuxX64()
   mingwX64()
-
+  
   sourceSets {
     val commonMain by getting {
       dependencies {
@@ -32,6 +34,7 @@ kotlin {
       dependencies {
         implementation(project(":test"))
         implementation(kotlin("test-annotations-common"))
+        implementation("dev.petuska:klip:_")
       }
     }
     val nativeMain by creating {
