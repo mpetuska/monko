@@ -65,7 +65,7 @@ jobs:
 
       - name: Restore libmongoc cache
         id: cache-libmongoc
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3.0.2
         with:
           path: |
             scripts/build
@@ -81,7 +81,7 @@ jobs:
 
       - name: Restore Gradle cache
         id: cache-gradle
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3.0.2
         with:
           path: |
             ~/.gradle/caches
@@ -174,7 +174,7 @@ jobs:
       - name: Restore libmongoc cache
         if: ${{ matrix.repository.enabled == true }}
         id: cache-libmongoc
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3.0.2
         with:
           path: |
             scripts/build
@@ -196,7 +196,7 @@ jobs:
       - name: Restore Gradle cache
         if: ${{ matrix.repository.enabled == true }}
         id: cache-gradle
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3.0.2
         with:
           path: |
             ~/.gradle/caches
