@@ -1,6 +1,6 @@
 plugins {
   id("de.fayard.refreshVersions") version "0.11.0"
-  id("com.gradle.enterprise") version "3.6.4"
+  id("com.gradle.enterprise") version "3.10.2"
 }
 
 rootProject.name = "monko"
