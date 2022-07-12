@@ -58,7 +58,7 @@ jobs:
       - name: Setup libmongoc
         run: ./scripts/setup.sh
 
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3.4.1
         with:
           distribution: 'adopt'
           java-version: 11
