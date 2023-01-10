@@ -1,5 +1,5 @@
 plugins {
-  kotlin("jvm") version "1.5.21"
+  kotlin("jvm") version "1.8.20-mercury-607"
   application
 }
 
